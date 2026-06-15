@@ -1,4 +1,4 @@
-import { ChatMessage, ContactRequest, Customer, Hustle, HustleEntry, RecurringCost, UserProfile } from '@/models/hustler';
+import { ChatMessage, ContactRequest, Customer, Hustle, HustleEntry, RecurringCost, UserProfile } from '../models/hustler';
 
 export const profile: UserProfile = {
   id: 'user-1',

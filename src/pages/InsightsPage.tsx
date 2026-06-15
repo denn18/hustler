@@ -1,9 +1,9 @@
 import { View } from 'react-native';
-import { AppText } from '@/components/AppText';
-import { Card } from '@/components/Card';
-import { SectionHeader } from '@/components/SectionHeader';
-import { getDashboardData } from '@/services/hustleService';
-import { spacing } from '@/design/theme';
+import { AppText } from '../components/AppText';
+import { Card } from '../components/Card';
+import { SectionHeader } from '../components/SectionHeader';
+import { getDashboardData } from '../services/hustleService';
+import { spacing } from '../design/theme';
 
 export function InsightsPage() {
   const top = [...getDashboardData().hustleStats].sort((a, b) => b.profit - a.profit);

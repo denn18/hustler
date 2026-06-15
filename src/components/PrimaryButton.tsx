@@ -1,7 +1,7 @@
 import { Pressable, PressableProps, PressableStateCallbackType, StyleProp, ViewStyle } from 'react-native';
 import { AppText } from './AppText';
-import { radius, spacing } from '@/design/theme';
-import { useAppTheme } from '@/design/useAppTheme';
+import { radius, spacing } from '../design/theme';
+import { useAppTheme } from '../design/useAppTheme';
 
 interface Props extends PressableProps { label: string; variant?: 'primary' | 'muted'; }
 

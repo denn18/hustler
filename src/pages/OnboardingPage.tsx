@@ -1,9 +1,9 @@
 import { View } from 'react-native';
-import { Card } from '@/components/Card';
-import { AppText } from '@/components/AppText';
-import { PrimaryButton } from '@/components/PrimaryButton';
-import { SectionHeader } from '@/components/SectionHeader';
-import { spacing } from '@/design/theme';
+import { Card } from '../components/Card';
+import { AppText } from '../components/AppText';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { SectionHeader } from '../components/SectionHeader';
+import { spacing } from '../design/theme';
 
 const steps = ['Account', 'Profil', 'Sichtbarkeit', 'Ziel', 'Tutorial'];
 

@@ -1,4 +1,4 @@
-import { Hustle, HustleEntry } from '@/models/hustler';
+import { Hustle, HustleEntry } from '../models/hustler';
 
 export const profitOf = (entry: HustleEntry) => entry.revenue - entry.costs;
 
