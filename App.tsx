@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { AppText } from '@/components/AppText';
 import { OnboardingPage } from '@/pages/OnboardingPage';
 import { RouteKey, routes } from '@/routes/tabs';
@@ -15,7 +14,6 @@ export default function App() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-      <StatusBar style="auto" />
       <ScrollView contentContainerStyle={{ padding: spacing.md, paddingBottom: 110 }}>
         {onboarded ? <ActivePage /> : <OnboardingPage onFinish={() => setOnboarded(true)} />}
       </ScrollView>
