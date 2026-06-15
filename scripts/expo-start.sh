@@ -26,8 +26,32 @@ MSG
   exit 1
 fi
 
+# On macOS, Metro falls back to Node/FSEvents when Watchman is missing. That
+# fallback often hits EMFILE while Expo opens the iOS simulator. Fail before
+# starting Metro so the user sees the actionable fix instead of a stack trace.
+if [[ "$(uname -s)" == "Darwin" ]] && ! command -v watchman >/dev/null 2>&1; then
+  cat >&2 <<MSG
+Watchman is required for reliable Metro file watching on macOS.
+Without it, Expo can fail with: EMFILE: too many open files, watch
+
+Install and reset Watchman, then start Expo again:
+  brew install watchman
+  watchman watch-del-all || true
+  rm -rf "\$TMPDIR/metro-*" "\$TMPDIR/haste-map-*" .expo
+  npm run start:clear
+MSG
+  exit 1
+fi
+
+if command -v watchman >/dev/null 2>&1; then
+  # Make Watchman read this repository's ignore rules even when npm is launched
+  # from a symlinked path or a parent shell with a different working directory.
+  export WATCHMAN_CONFIG_FILE="${WATCHMAN_CONFIG_FILE:-${PWD}/.watchmanconfig}"
+fi
+
 # Keep Expo from accidentally selecting a parent workspace as Metro's root.
 # A larger root makes Metro create far more watchers and can trigger EMFILE.
 export EXPO_USE_METRO_WORKSPACE_ROOT=0
 
+printf 'Starting Expo with open-files soft limit: %s\n' "${CURRENT_SOFT_LIMIT}"
 exec npx --no-install expo start "$@"
