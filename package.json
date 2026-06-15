@@ -1,0 +1,25 @@
+{
+  "name": "hustler",
+  "version": "0.1.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "start:clear": "expo start -c",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "web": "expo start --web",
+    "doctor": "expo-doctor",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "expo": "~56.0.11",
+    "react": "19.2.3",
+    "react-native": "0.85.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.7",
+    "expo-doctor": "^1.17.11",
+    "typescript": "~5.9.2"
+  }
+}
