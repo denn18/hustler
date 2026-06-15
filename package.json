@@ -4,11 +4,11 @@
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "ulimit -n 65536 2>/dev/null || true; expo start",
-    "start:clear": "ulimit -n 65536 2>/dev/null || true; expo start -c",
-    "ios": "ulimit -n 65536 2>/dev/null || true; expo start --ios",
-    "android": "ulimit -n 65536 2>/dev/null || true; expo start --android",
-    "web": "ulimit -n 65536 2>/dev/null || true; expo start --web",
+    "start": "./scripts/expo-start.sh",
+    "start:clear": "./scripts/expo-start.sh -c",
+    "ios": "./scripts/expo-start.sh --ios",
+    "android": "./scripts/expo-start.sh --android",
+    "web": "./scripts/expo-start.sh --web",
     "doctor": "expo-doctor",
     "typecheck": "tsc --noEmit"
   },
