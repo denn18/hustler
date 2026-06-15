@@ -1,5 +1,5 @@
-import { entries, hustles } from '@/db/mockData';
-import { statsByHustle, summarizeEntries } from '@/logic/metrics';
+import { entries, hustles } from '../db/mockData';
+import { statsByHustle, summarizeEntries } from '../logic/metrics';
 
 export function getDashboardData() {
   const today = '2026-06-15';

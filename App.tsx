@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, View } from 'react-native';
-import { AppText } from '@/components/AppText';
-import { OnboardingPage } from '@/pages/OnboardingPage';
-import { RouteKey, routes } from '@/routes/tabs';
-import { spacing } from '@/design/theme';
-import { useAppTheme } from '@/design/useAppTheme';
+import { AppText } from './src/components/AppText';
+import { OnboardingPage } from './src/pages/OnboardingPage';
+import { RouteKey, routes } from './src/routes/tabs';
+import { spacing } from './src/design/theme';
+import { useAppTheme } from './src/design/useAppTheme';
 
 export default function App() {
   const theme = useAppTheme();

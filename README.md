@@ -32,9 +32,20 @@ npx expo install --fix
 npx expo-doctor
 ```
 
+## Start ohne Homebrew-Pflicht
+
+Das Projekt braucht kein Homebrew, um normal mit Expo Go zu starten. Die App deklariert `@babel/runtime` direkt als Runtime-Abhängigkeit, weil Metro/React Native diesen Helper beim Bundling benötigt. Nach einem frischen Checkout genügt:
+
+```bash
+npm install
+npm run start:clear
+```
+
+Danach `i` für den iOS-Simulator, `w` für Web oder den QR-Code in Expo Go öffnen. CocoaPods werden nur benötigt, wenn später ein nativer iOS-Build über `expo prebuild`/Xcode erstellt wird; für diesen Expo-Go-Prototyp gibt es bewusst keinen iOS-Pods-Zwang.
+
 ## macOS: `EMFILE: too many open files, watch`
 
-Der Fehler kommt vom Dateiwatcher, nicht vom Hustler-App-Code. Auf macOS muss Metro Watchman verwenden; ohne Watchman fällt Metro auf Node/FSEvents zurück und kann beim Öffnen des iOS-Simulators mit `EMFILE: too many open files, watch` abbrechen. Die npm-Startskripte laufen über `scripts/expo-start.sh`: Das Skript hebt das Datei-Limit für den Expo-Prozess sichtbar auf den höchstmöglichen Wert an, bricht auf macOS ohne Watchman mit einer klaren Anleitung ab und setzt `EXPO_USE_METRO_WORKSPACE_ROOT=0`, damit Metro nicht versehentlich einen übergeordneten Ordner überwacht. Zusätzlich begrenzt `metro.config.js` Metro auf dieses Projekt und verhindert hierarchische `node_modules`-Suche außerhalb des Repos.
+Der Fehler kommt vom Dateiwatcher, nicht vom Hustler-App-Code. Die npm-Startskripte laufen über `scripts/expo-start.sh`: Das Skript hebt das Datei-Limit für den Expo-Prozess an, begrenzt Metro auf dieses Projekt und nutzt Watchman nur, wenn es bereits installiert ist. Homebrew/Watchman ist also optional und nicht mehr Voraussetzung.
 
 ```bash
 npm run ios
@@ -42,14 +53,11 @@ npm run ios
 npm run start:clear
 ```
 
-Wenn macOS trotzdem ein zu niedriges Hard-Limit meldet, dieses Limit einmalig erhöhen und danach Watchman installieren bzw. die Metro-/Watchman-Caches leeren:
+Wenn macOS trotzdem `EMFILE` meldet, zuerst die Metro-Caches löschen und mit leerem Cache starten:
 
 ```bash
-sudo launchctl limit maxfiles 65536 200000
-brew install watchman
-watchman watch-del-all
 rm -rf "$TMPDIR/metro-*" "$TMPDIR/haste-map-*" .expo
 npm run start:clear
 ```
 
-Falls es danach noch hängt, Terminal und Expo Go neu öffnen. `node_modules` ist in `.gitignore` und `.watchmanconfig` ausgeschlossen, damit keine unnötigen Projektdateien versioniert oder beobachtet werden.
+Nur bei sehr großen lokalen Workspaces kann Watchman weiterhin als optionale Performance-Verbesserung helfen. `node_modules` ist in `.gitignore` und `.watchmanconfig` ausgeschlossen, damit keine unnötigen Projektdateien versioniert oder beobachtet werden.

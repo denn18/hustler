@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Text, TextStyle } from 'react-native';
-import { useAppTheme } from '@/design/useAppTheme';
+import { useAppTheme } from '../design/useAppTheme';
 
 interface Props { children: ReactNode; muted?: boolean; size?: number; weight?: TextStyle['fontWeight']; style?: TextStyle; }
 

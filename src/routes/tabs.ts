@@ -1,9 +1,9 @@
 import { ComponentType } from 'react';
-import { DashboardPage } from '@/pages/DashboardPage';
-import { CommunityPage } from '@/pages/CommunityPage';
-import { MessengerPage } from '@/pages/MessengerPage';
-import { InsightsPage } from '@/pages/InsightsPage';
-import { ProfilePage } from '@/pages/ProfilePage';
+import { DashboardPage } from '../pages/DashboardPage';
+import { CommunityPage } from '../pages/CommunityPage';
+import { MessengerPage } from '../pages/MessengerPage';
+import { InsightsPage } from '../pages/InsightsPage';
+import { ProfilePage } from '../pages/ProfilePage';
 
 export type RouteKey = 'dashboard' | 'community' | 'messenger' | 'insights' | 'profile';
 

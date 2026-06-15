@@ -1,10 +1,10 @@
 import { View } from 'react-native';
-import { AppText } from '@/components/AppText';
-import { Card } from '@/components/Card';
-import { PrimaryButton } from '@/components/PrimaryButton';
-import { SectionHeader } from '@/components/SectionHeader';
-import { nearbyHustlers } from '@/services/communityService';
-import { spacing } from '@/design/theme';
+import { AppText } from '../components/AppText';
+import { Card } from '../components/Card';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { SectionHeader } from '../components/SectionHeader';
+import { nearbyHustlers } from '../services/communityService';
+import { spacing } from '../design/theme';
 
 export function CommunityPage() {
   return (

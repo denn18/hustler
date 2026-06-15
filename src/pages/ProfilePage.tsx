@@ -1,9 +1,9 @@
 import { View } from 'react-native';
-import { AppText } from '@/components/AppText';
-import { Card } from '@/components/Card';
-import { SectionHeader } from '@/components/SectionHeader';
-import { profile, recurringCosts, customers } from '@/db/mockData';
-import { spacing } from '@/design/theme';
+import { AppText } from '../components/AppText';
+import { Card } from '../components/Card';
+import { SectionHeader } from '../components/SectionHeader';
+import { profile, recurringCosts, customers } from '../db/mockData';
+import { spacing } from '../design/theme';
 
 export function ProfilePage() {
   return (

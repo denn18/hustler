@@ -1,12 +1,12 @@
 import { View } from 'react-native';
-import { AppText } from '@/components/AppText';
-import { Card } from '@/components/Card';
-import { PrimaryButton } from '@/components/PrimaryButton';
-import { SectionHeader } from '@/components/SectionHeader';
-import { profile } from '@/db/mockData';
-import { progress, profitOf } from '@/logic/metrics';
-import { getDashboardData } from '@/services/hustleService';
-import { spacing } from '@/design/theme';
+import { AppText } from '../components/AppText';
+import { Card } from '../components/Card';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { SectionHeader } from '../components/SectionHeader';
+import { profile } from '../db/mockData';
+import { progress, profitOf } from '../logic/metrics';
+import { getDashboardData } from '../services/hustleService';
+import { spacing } from '../design/theme';
 
 export function DashboardPage() {
   const data = getDashboardData();

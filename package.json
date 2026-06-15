@@ -9,10 +9,11 @@
     "ios": "./scripts/expo-start.sh --ios",
     "android": "./scripts/expo-start.sh --android",
     "web": "./scripts/expo-start.sh --web",
-    "doctor": "expo-doctor",
+    "doctor": "npx --no-install expo install --check",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@babel/runtime": "^7.29.7",
     "expo": "~51.0.39",
     "react": "18.2.0",
     "react-native": "0.74.5"
