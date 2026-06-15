@@ -2,7 +2,7 @@
   "name": "hustler",
   "version": "0.1.0",
   "private": true,
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "index.js",
   "scripts": {
     "start": "./scripts/expo-start.sh",
     "start:clear": "./scripts/expo-start.sh -c",
