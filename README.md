@@ -34,7 +34,15 @@ npx expo-doctor
 
 ## macOS: `EMFILE: too many open files, watch`
 
-Der Fehler kommt vom Dateiwatcher, nicht vom Hustler-App-Code. Auf macOS sollte Watchman installiert werden, damit Metro nicht auf den begrenzten Node-Dateiwatcher zurückfällt:
+Der Fehler kommt vom Dateiwatcher, nicht vom Hustler-App-Code. Die npm-Startskripte erhöhen vor dem Start automatisch das Datei-Limit für den Expo-Prozess (`ulimit -n 65536`), damit Metro auf macOS nicht sofort in das `EMFILE`-Limit läuft. Starte Expo deshalb immer über npm oder npx, nicht über ein globales `expo`-Kommando:
+
+```bash
+npm run ios
+# oder
+npm run start:clear
+```
+
+Wenn macOS trotzdem zu viele Watcher meldet, Watchman installieren und die Metro-/Watchman-Caches leeren:
 
 ```bash
 brew install watchman
