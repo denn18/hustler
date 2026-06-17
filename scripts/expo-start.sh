@@ -32,5 +32,10 @@ raise the Terminal limit or install Watchman as an optional optimization.
 MSG
 fi
 
+if [[ " $* " != *" -c "* && " $* " != *" --clear "* ]]; then
+  set -- --clear "$@"
+fi
+
 printf 'Starting Expo with open-files soft limit: %s\n' "${CURRENT_SOFT_LIMIT}"
+printf 'Starting Expo with Metro cache reset enabled.\n'
 exec npx --no-install expo start "$@"
