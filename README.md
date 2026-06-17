@@ -34,14 +34,14 @@ npx expo-doctor
 
 ## Start ohne Homebrew-Pflicht
 
-Das Projekt braucht kein Homebrew, um normal mit Expo Go zu starten. Die App deklariert `@babel/runtime` direkt als Runtime-Abhängigkeit, weil Metro/React Native diesen Helper beim Bundling benötigt. Nach einem frischen Checkout genügt:
+Das Projekt braucht kein Homebrew, um normal mit Expo Go zu starten. `@babel/runtime` wird nicht mehr als eigene App-Abhängigkeit deklariert; Expo/React Native bringen die benötigten Babel-Helper transitiv mit. Nach einem frischen Checkout genügt:
 
 ```bash
 npm install
 npm run start:clear
 ```
 
-Danach `i` für den iOS-Simulator, `w` für Web oder den QR-Code in Expo Go öffnen. Die Startskripte setzen Metros Cache automatisch zurück, damit nach Dependency-Änderungen keine alten Resolver-Ergebnisse wie fehlende `@babel/runtime`-Helper im Simulator hängen bleiben. CocoaPods werden nur benötigt, wenn später ein nativer iOS-Build über `expo prebuild`/Xcode erstellt wird; für diesen Expo-Go-Prototyp gibt es bewusst keinen iOS-Pods-Zwang.
+Danach `i` für den iOS-Simulator, `w` für Web oder den QR-Code in Expo Go öffnen. Die Startskripte setzen Metros Cache automatisch zurück, damit nach Dependency-Änderungen keine alten Resolver-Ergebnisse im Simulator hängen bleiben. Für Expo Go werden keine lokalen CocoaPods benötigt. Wenn später ein nativer iOS-Build nötig ist, zuerst `npx expo prebuild --platform ios` ausführen und danach im erzeugten `ios`-Ordner `pod install` laufen lassen.
 
 ## macOS: `EMFILE: too many open files, watch`
 
