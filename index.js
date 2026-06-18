@@ -1,4 +1,5 @@
-const { registerRootComponent } = require('expo');
+const { AppRegistry } = require('react-native');
+
 const App = require('./App').default;
 
-registerRootComponent(App);
+AppRegistry.registerComponent('main', () => App);
