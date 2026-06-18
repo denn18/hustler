@@ -32,6 +32,14 @@ raise the Terminal limit or install Watchman as an optional optimization.
 MSG
 fi
 
+if ! node -e "require.resolve('expo'); require.resolve('react'); require.resolve('react-native')" >/dev/null 2>&1; then
+  cat >&2 <<MSG
+Required JavaScript dependencies are missing.
+Installing from package-lock.json before starting Expo...
+MSG
+  npm install
+fi
+
 if [[ " $* " != *" -c "* && " $* " != *" --clear "* ]]; then
   set -- --clear "$@"
 fi
