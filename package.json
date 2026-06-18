@@ -2,14 +2,14 @@
   "name": "hustler",
   "version": "0.1.0",
   "private": true,
-  "main": "index.js",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "./scripts/expo-start.sh",
-    "start:clear": "./scripts/expo-start.sh -c",
-    "ios": "./scripts/expo-start.sh --ios",
-    "android": "./scripts/expo-start.sh --android",
-    "web": "./scripts/expo-start.sh --web",
-    "doctor": "npx --no-install expo install --check",
+    "start": "expo start",
+    "start:clear": "expo start -c",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "web": "expo start --web",
+    "doctor": "npx expo-doctor",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
