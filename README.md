@@ -34,7 +34,7 @@ npx expo-doctor
 
 ## Start ohne Homebrew-Pflicht
 
-Das Projekt braucht kein Homebrew, um normal mit Expo Go zu starten. `@babel/runtime` wird nicht mehr als eigene App-Abhängigkeit deklariert; Expo/React Native bringen die benötigten Babel-Helper transitiv mit. Nach einem frischen Checkout genügt:
+Das Projekt braucht kein Homebrew, um normal mit Expo Go zu starten. Nach einem frischen Checkout genügt:
 
 ```bash
 npm install
