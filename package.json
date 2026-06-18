@@ -8,9 +8,7 @@
     "start:clear": "expo start -c",
     "ios": "expo start --ios",
     "android": "expo start --android",
-    "web": "expo start --web",
-    "doctor": "npx expo-doctor",
-    "typecheck": "tsc --noEmit"
+    "web": "expo start --web"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.7",
