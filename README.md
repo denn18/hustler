@@ -14,6 +14,18 @@ Robuste Expo-Go-kompatible TypeScript-App als schlanke Basis für ein tägliches
 npm install
 ```
 
+## Clean reinstall bei Expo-Bundling-Problemen
+
+Wenn Metro iOS-Abhängigkeiten wie `@babel/runtime/helpers/interopRequireDefault` oder `expo/AppEntry` nicht auflösen kann, installiere die Abhängigkeiten sauber neu und starte Metro ohne Cache:
+
+```bash
+rm -rf node_modules package-lock.json .expo
+npm install
+node -p "require.resolve('@babel/runtime/helpers/interopRequireDefault')"
+node -p "require.resolve('expo/AppEntry')"
+npm run start:clear
+```
+
 ## Entwicklung starten
 
 ```bash
@@ -70,6 +82,6 @@ src/lib                 Hilfsfunktionen und App-Daten
 ## Checks
 
 ```bash
-npm run typecheck
-npm run doctor
+npx tsc --noEmit
+npx expo-doctor
 ```
