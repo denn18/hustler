@@ -1,5 +1,4 @@
-const { AppRegistry } = require('react-native');
+import { registerRootComponent } from 'expo';
+import App from './App';
 
-const App = require('./App').default;
-
-AppRegistry.registerComponent('main', () => App);
+registerRootComponent(App);
