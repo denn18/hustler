@@ -1,56 +1,56 @@
 import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
+import type { UserProfile } from '../models/hustler';
+import { getDashboardSummary } from '../services/dashboardService';
 
 type DashboardPageProps = {
-  username: string;
-  hasHustles?: boolean;
+  user: UserProfile;
 };
 
-const monthlyGoal = 2500;
-const monthlyProfit = 1420;
-const monthlyProgress = monthlyProfit / monthlyGoal;
+const formatEuro = (value: number): string => `€${Math.round(value).toLocaleString('de-DE')}`;
 
-export function DashboardPage({ username, hasHustles = false }: DashboardPageProps) {
+export function DashboardPage({ user }: DashboardPageProps) {
+  const summary = getDashboardSummary(user);
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.kicker}>Dashboard</Text>
-          <Text style={styles.title}>Hi {username || 'Hustler'} 👋</Text>
+          <Text style={styles.title}>Hi {summary.user.username || 'Hustler'} 👋</Text>
           <Text style={styles.subtitle}>Dein kompakter Überblick für Ziele, Gewinne und Hustles.</Text>
         </View>
 
         <View style={styles.goalCard}>
           <View style={styles.rowBetween}>
             <Text style={styles.cardTitle}>Monatsziel-Fortschritt</Text>
-            <Text style={styles.progressValue}>{Math.round(monthlyProgress * 100)}%</Text>
+            <Text style={styles.progressValue}>{Math.round(summary.monthlyProgress * 100)}%</Text>
           </View>
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${Math.min(monthlyProgress, 1) * 100}%` }]} />
+            <View style={[styles.progressFill, { width: `${Math.min(summary.monthlyProgress, 1) * 100}%` }]} />
           </View>
-          <Text style={styles.muted}>€{monthlyProfit.toLocaleString('de-DE')} von €{monthlyGoal.toLocaleString('de-DE')}</Text>
+          <Text style={styles.muted}>{formatEuro(summary.monthlyProfit)} von {formatEuro(summary.monthlyGoal)}</Text>
         </View>
 
         <View style={styles.metricGrid}>
-          <MetricCard label="Heutiger Gewinn" value="€180" />
-          <MetricCard label="Monatsgewinn" value="€1.420" />
-          <MetricCard label="Ø Stundenlohn" value="€36/h" />
+          <MetricCard label="Heutiger Gewinn" value={formatEuro(summary.todayProfit)} />
+          <MetricCard label="Monatsgewinn" value={formatEuro(summary.monthlyProfit)} />
+          <MetricCard label="Ø Stundenlohn" value={`${formatEuro(summary.averageHourlyRate)}/h`} />
         </View>
 
         <View style={styles.hustlesCard}>
           <View style={styles.rowBetween}>
             <Text style={styles.cardTitle}>Meine Hustles</Text>
-            <Text style={styles.badge}>{hasHustles ? 'Aktiv' : 'Neu'}</Text>
+            <Text style={styles.badge}>{summary.hasHustles ? 'Aktiv' : 'Neu'}</Text>
           </View>
           <Text style={styles.muted}>
-            {hasHustles
+            {summary.hasHustles
               ? 'Füge eine neue Einnahme hinzu, um deinen Fortschritt aktuell zu halten.'
               : 'Lege deinen ersten Hustle an und tracke Einnahmen direkt im Dashboard.'}
           </Text>
           <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>{hasHustles ? '+ Einnahme' : 'Ersten Hustle erstellen'}</Text>
+            <Text style={styles.buttonText}>{summary.hasHustles ? '+ Einnahme' : 'Ersten Hustle erstellen'}</Text>
           </Pressable>
         </View>
       </ScrollView>
