@@ -9,6 +9,8 @@ export type SignInProfileInput = {
   publicDisplayName?: string;
   username?: string;
   earningsVisibility?: EarningsVisibility;
+  isMapVisible?: boolean;
+  isAnonymousProfile?: boolean;
 };
 
 const createMockUserId = (email: string): string => `mock-user-${email.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
@@ -38,6 +40,8 @@ export function signInWithEmail(email: string, password: string, profile: SignIn
     profileImageUri: normalizeOptionalText(profile.profileImageUri),
     bio: normalizeOptionalText(profile.bio),
     publicDisplayName: normalizeOptionalText(profile.publicDisplayName),
+    isMapVisible: profile.isMapVisible ?? false,
+    isAnonymousProfile: profile.isAnonymousProfile ?? false,
     earningsVisibility: profile.earningsVisibility ?? 'private',
     createdAt: new Date().toISOString(),
   };
