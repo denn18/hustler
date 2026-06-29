@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
 import { signInWithEmail, type SignInProfileInput } from '../services/authService';
@@ -70,7 +70,7 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.hero}>
           <Text style={styles.kicker}>Hustler</Text>
           <Text style={styles.title}>Willkommen zurück</Text>
@@ -245,7 +245,7 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
             Auth ist für diesen Prototyp nur lokal gemockt, damit der App-Flow ohne Backend startfähig ist.
           </Text>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -264,10 +264,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
     gap: spacing.lg,
     justifyContent: 'center',
     padding: spacing.lg,
+    paddingBottom: spacing.xl,
   },
   formCard: {
     backgroundColor: colors.card,
