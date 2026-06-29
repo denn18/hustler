@@ -4,12 +4,17 @@ import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextI
 import { colors, radii, spacing } from '../design/theme';
 import type { HustleVisibility, UserProfile } from '../models/hustler';
 import { createHustle, type CreateHustleInput } from '../services/hustleService';
+import { suggestHustleDefaults } from '../services/hustleSuggestionService';
 
 type CreateHustlePageProps = {
   onCancel: () => void;
   onCreated: (user: UserProfile) => void;
   user: UserProfile;
 };
+
+const suggestedFields = ['category', 'icon', 'color'] as const;
+
+type SuggestedField = (typeof suggestedFields)[number];
 
 const visibilityOptions: Array<{ label: string; value: HustleVisibility }> = [
   { label: 'Privat', value: 'private' },
@@ -19,15 +24,44 @@ const visibilityOptions: Array<{ label: string; value: HustleVisibility }> = [
 
 export function CreateHustlePage({ onCancel, onCreated, user }: CreateHustlePageProps) {
   const [form, setForm] = useState<CreateHustleInput>({ category: '', name: '', visibility: 'private' });
+  const [manuallyChangedSuggestedFields, setManuallyChangedSuggestedFields] = useState<Record<SuggestedField, boolean>>({
+    category: false,
+    color: false,
+    icon: false,
+  });
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [targetMonthlyProfitInput, setTargetMonthlyProfitInput] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit = useMemo(() => form.name.trim().length > 0 && form.category.trim().length > 0, [form]);
 
+  function updateName(value: string) {
+    setError(null);
+    const suggestedDefaults = suggestHustleDefaults(value);
+
+    setForm((currentForm) => {
+      const suggestedFormValues = suggestedFields.reduce<Partial<CreateHustleInput>>((updatedValues, field) => {
+        const suggestedValue = suggestedDefaults[field];
+
+        if (suggestedValue && !manuallyChangedSuggestedFields[field]) {
+          updatedValues[field] = suggestedValue;
+        }
+
+        return updatedValues;
+      }, {});
+
+      return { ...currentForm, ...suggestedFormValues, name: value };
+    });
+  }
+
   function updateTextField(field: keyof CreateHustleInput) {
     return (value: string) => {
       setError(null);
+
+      if (suggestedFields.includes(field as SuggestedField)) {
+        setManuallyChangedSuggestedFields((currentFields) => ({ ...currentFields, [field]: true }));
+      }
+
       setForm((currentForm) => ({ ...currentForm, [field]: value }));
     };
   }
@@ -67,7 +101,7 @@ export function CreateHustlePage({ onCancel, onCreated, user }: CreateHustlePage
         <View style={styles.formCard}>
           <Text style={styles.label}>Name *</Text>
           <TextInput
-            onChangeText={updateTextField('name')}
+            onChangeText={updateName}
             placeholder="z. B. Wochenend-Fotoshootings"
             placeholderTextColor={colors.mutedText}
             style={styles.input}
