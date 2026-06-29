@@ -10,6 +10,7 @@ export default function App() {
     <AppNavigator
       isAuthenticated={user !== null}
       onAuthenticate={setUser}
+      onUpdateUser={setUser}
       user={user}
     />
   );
