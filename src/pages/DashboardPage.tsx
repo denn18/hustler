@@ -7,6 +7,7 @@ import { getPublicDisplayName } from '../services/authService';
 import { type DashboardDataSource, getDashboardSummary } from '../services/dashboardService';
 
 type DashboardPageProps = {
+  onCreateEntry: () => void;
   onCreateHustle: () => void;
   onUpdateUser: (user: UserProfile) => void;
   user: UserProfile;
@@ -14,11 +15,11 @@ type DashboardPageProps = {
 
 const formatEuro = (value: number): string => `€${Math.round(value).toLocaleString('de-DE')}`;
 
-export function DashboardPage({ onCreateHustle, onUpdateUser, user }: DashboardPageProps) {
-  const [dashboardData] = useState<DashboardDataSource>({
+export function DashboardPage({ onCreateEntry, onCreateHustle, onUpdateUser, user }: DashboardPageProps) {
+  const dashboardData: DashboardDataSource = {
     entries: user.hustleEntries ?? [],
     hustles: user.hustles ?? [],
-  });
+  };
   const summary = getDashboardSummary(user, dashboardData);
   const activeHustles = summary.hustles.filter((hustle) => hustle.isActive);
   const publicDisplayName = getPublicDisplayName(summary.user);
@@ -81,7 +82,7 @@ export function DashboardPage({ onCreateHustle, onUpdateUser, user }: DashboardP
                   </View>
                 ))}
               </View>
-              <Pressable style={styles.button}>
+              <Pressable onPress={onCreateEntry} style={styles.button}>
                 <Text style={styles.buttonText}>+ Einnahme</Text>
               </Pressable>
             </>

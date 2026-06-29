@@ -49,6 +49,8 @@ export type Hustle = {
 
 export const getHustleDisplayName = (hustle: Pick<Hustle, 'name' | 'title'>): string => hustle.name || hustle.title || 'Unbenannter Hustle';
 
+export type PaymentStatus = 'open' | 'paid' | 'overdue';
+
 export type HustleEntry = {
   id: string;
   hustleId: string;
@@ -56,6 +58,14 @@ export type HustleEntry = {
   costs: number;
   hoursWorked: number;
   note?: string;
+  materialCosts?: number;
+  travelCosts?: number;
+  platformFees?: number;
+  customer?: string;
+  date?: string;
+  time?: string;
+  paymentStatus?: PaymentStatus;
+  expenseCategory?: string;
   earnedAt: string;
 };
 

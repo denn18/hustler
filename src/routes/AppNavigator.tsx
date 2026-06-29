@@ -1,6 +1,7 @@
 import { AuthPage } from '../pages/AuthPage';
 import { useState } from 'react';
 
+import { CreateEntryPage } from '../pages/CreateEntryPage';
 import { CreateHustlePage } from '../pages/CreateHustlePage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { TutorialPage } from '../pages/TutorialPage';
@@ -14,7 +15,7 @@ type AppNavigatorProps = {
 };
 
 export function AppNavigator({ isAuthenticated, onAuthenticate, onUpdateUser, user }: AppNavigatorProps) {
-  const [activePage, setActivePage] = useState<'dashboard' | 'createHustle'>('dashboard');
+  const [activePage, setActivePage] = useState<'dashboard' | 'createEntry' | 'createHustle'>('dashboard');
   if (!isAuthenticated) {
     return <AuthPage onAuthenticate={onAuthenticate} />;
   }
@@ -25,6 +26,19 @@ export function AppNavigator({ isAuthenticated, onAuthenticate, onUpdateUser, us
 
   if (!user.hasCompletedTutorial) {
     return <TutorialPage onComplete={onUpdateUser} user={user} />;
+  }
+
+  if (activePage === 'createEntry') {
+    return (
+      <CreateEntryPage
+        onCancel={() => setActivePage('dashboard')}
+        onCreated={(updatedUser) => {
+          onUpdateUser(updatedUser);
+          setActivePage('dashboard');
+        }}
+        user={user}
+      />
+    );
   }
 
   if (activePage === 'createHustle') {
@@ -40,5 +54,12 @@ export function AppNavigator({ isAuthenticated, onAuthenticate, onUpdateUser, us
     );
   }
 
-  return <DashboardPage onCreateHustle={() => setActivePage('createHustle')} onUpdateUser={onUpdateUser} user={user} />;
+  return (
+    <DashboardPage
+      onCreateEntry={() => setActivePage('createEntry')}
+      onCreateHustle={() => setActivePage('createHustle')}
+      onUpdateUser={onUpdateUser}
+      user={user}
+    />
+  );
 }
