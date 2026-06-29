@@ -1,3 +1,5 @@
+export type EarningsVisibility = 'private' | 'username' | 'anonymousLeaderboard';
+
 export type UserProfile = {
   id: string;
   email: string;
@@ -8,6 +10,7 @@ export type UserProfile = {
   bio?: string;
   offering: string;
   publicDisplayName?: string;
+  earningsVisibility: EarningsVisibility;
   createdAt: string;
 };
 
