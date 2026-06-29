@@ -19,6 +19,7 @@ export function DashboardPage({ onCreateEntry, onCreateHustle, onUpdateUser, use
   const dashboardData: DashboardDataSource = {
     entries: user.hustleEntries ?? [],
     hustles: user.hustles ?? [],
+    recurringCosts: user.recurringCosts ?? [],
   };
   const summary = getDashboardSummary(user, dashboardData);
   const activeHustles = summary.hustles.filter((hustle) => hustle.isActive);
@@ -55,6 +56,7 @@ export function DashboardPage({ onCreateEntry, onCreateHustle, onUpdateUser, use
         <View style={styles.metricGrid}>
           <MetricCard label="Heutiger Gewinn" value={formatEuro(summary.todayProfit)} />
           <MetricCard label="Monatsgewinn" value={formatEuro(summary.monthlyProfit)} />
+          <MetricCard label="Fixkosten/Monat" value={formatEuro(summary.monthlyRecurringCosts)} />
           <MetricCard label="Ø Stundenlohn" value={`${formatEuro(summary.averageHourlyRate)}/h`} />
         </View>
 
