@@ -13,6 +13,7 @@ export type UserProfile = {
   isMapVisible: boolean;
   isAnonymousProfile: boolean;
   earningsVisibility: EarningsVisibility;
+  monthlyProfitGoal: number;
   createdAt: string;
 };
 

@@ -11,6 +11,7 @@ export type SignInProfileInput = {
   earningsVisibility?: EarningsVisibility;
   isMapVisible?: boolean;
   isAnonymousProfile?: boolean;
+  monthlyProfitGoal?: number;
 };
 
 const createMockUserId = (email: string): string => `mock-user-${email.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
@@ -18,6 +19,14 @@ const createMockUserId = (email: string): string => `mock-user-${email.toLowerCa
 const normalizeOptionalText = (value?: string): string | undefined => {
   const trimmedValue = value?.trim();
   return trimmedValue || undefined;
+};
+
+const normalizeMonthlyProfitGoal = (value?: number): number => {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return 1000;
+  }
+
+  return Math.round(value);
 };
 
 export function getPublicDisplayName(user: Pick<UserProfile, 'publicDisplayName' | 'username'>): string {
@@ -43,6 +52,7 @@ export function signInWithEmail(email: string, password: string, profile: SignIn
     isMapVisible: profile.isMapVisible ?? false,
     isAnonymousProfile: profile.isAnonymousProfile ?? false,
     earningsVisibility: profile.earningsVisibility ?? 'private',
+    monthlyProfitGoal: normalizeMonthlyProfitGoal(profile.monthlyProfitGoal),
     createdAt: new Date().toISOString(),
   };
 }

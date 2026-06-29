@@ -9,6 +9,10 @@ type AuthPageProps = {
   onAuthenticate: (user: UserProfile) => void;
 };
 
+const monthlyProfitGoalOptions = [500, 1000, 2500, 4000] as const;
+
+type MonthlyProfitGoalOption = (typeof monthlyProfitGoalOptions)[number] | 'custom';
+
 const earningsVisibilityOptions: Array<{ label: string; value: EarningsVisibility }> = [
   { label: 'Einnahmen privat', value: 'private' },
   { label: 'Einnahmen mit Username sichtbar', value: 'username' },
@@ -18,12 +22,15 @@ const earningsVisibilityOptions: Array<{ label: string; value: EarningsVisibilit
 export function AuthPage({ onAuthenticate }: AuthPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedMonthlyProfitGoal, setSelectedMonthlyProfitGoal] = useState<MonthlyProfitGoalOption>(1000);
+  const [customMonthlyProfitGoal, setCustomMonthlyProfitGoal] = useState('');
   const [profileDraft, setProfileDraft] = useState<SignInProfileInput>({
     area: '',
     bio: '',
     city: '',
     offering: '',
     earningsVisibility: 'private',
+    monthlyProfitGoal: 1000,
     profileImageUri: '',
     username: '',
   });
@@ -36,6 +43,24 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
 
   function updateEarningsVisibility(earningsVisibility: EarningsVisibility) {
     setProfileDraft((currentDraft) => ({ ...currentDraft, earningsVisibility }));
+  }
+
+  function updateMonthlyProfitGoal(monthlyProfitGoal: MonthlyProfitGoalOption) {
+    setSelectedMonthlyProfitGoal(monthlyProfitGoal);
+
+    if (monthlyProfitGoal !== 'custom') {
+      setProfileDraft((currentDraft) => ({ ...currentDraft, monthlyProfitGoal }));
+    }
+  }
+
+  function updateCustomMonthlyProfitGoal(value: string) {
+    setCustomMonthlyProfitGoal(value);
+
+    const parsedMonthlyProfitGoal = Number(value.replace(',', '.'));
+    setProfileDraft((currentDraft) => ({
+      ...currentDraft,
+      monthlyProfitGoal: Number.isFinite(parsedMonthlyProfitGoal) ? parsedMonthlyProfitGoal : undefined,
+    }));
   }
 
   function handleSubmit() {
@@ -112,6 +137,60 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
             style={styles.input}
             value={profileDraft.offering}
           />
+
+
+          <Text style={styles.label}>Monatliches Gewinnziel</Text>
+          <View style={styles.visibilityOptions}>
+            {monthlyProfitGoalOptions.map((monthlyProfitGoal) => {
+              const isSelected = selectedMonthlyProfitGoal === monthlyProfitGoal;
+
+              return (
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelected }}
+                  key={monthlyProfitGoal}
+                  onPress={() => updateMonthlyProfitGoal(monthlyProfitGoal)}
+                  style={[styles.visibilityOption, isSelected && styles.visibilityOptionSelected]}
+                >
+                  <View style={[styles.radioIndicator, isSelected && styles.radioIndicatorSelected]} />
+                  <Text style={[styles.visibilityOptionText, isSelected && styles.visibilityOptionTextSelected]}>
+                    {monthlyProfitGoal.toLocaleString('de-DE')} € Gewinnziel
+                  </Text>
+                </Pressable>
+              );
+            })}
+            <Pressable
+              accessibilityRole="radio"
+              accessibilityState={{ selected: selectedMonthlyProfitGoal === 'custom' }}
+              onPress={() => updateMonthlyProfitGoal('custom')}
+              style={[styles.visibilityOption, selectedMonthlyProfitGoal === 'custom' && styles.visibilityOptionSelected]}
+            >
+              <View
+                style={[
+                  styles.radioIndicator,
+                  selectedMonthlyProfitGoal === 'custom' && styles.radioIndicatorSelected,
+                ]}
+              />
+              <Text
+                style={[
+                  styles.visibilityOptionText,
+                  selectedMonthlyProfitGoal === 'custom' && styles.visibilityOptionTextSelected,
+                ]}
+              >
+                Eigenes Gewinnziel
+              </Text>
+            </Pressable>
+          </View>
+          {selectedMonthlyProfitGoal === 'custom' ? (
+            <TextInput
+              keyboardType="numeric"
+              onChangeText={updateCustomMonthlyProfitGoal}
+              placeholder="Dein monatliches Gewinnziel in €"
+              placeholderTextColor={colors.mutedText}
+              style={styles.input}
+              value={customMonthlyProfitGoal}
+            />
+          ) : null}
 
           <Text style={styles.label}>Sichtbarkeit deiner Einnahmen</Text>
           <View style={styles.visibilityOptions}>
