@@ -36,7 +36,7 @@ const mockEntries = (): HustleEntry[] => [
 export function getDashboardSummary(user: UserProfile): DashboardSummary {
   const hustles = mockHustles(user.id);
   const recentEntries = mockEntries();
-  const monthlyGoal = hustles.reduce((sum, hustle) => sum + hustle.targetMonthlyProfit, 0);
+  const monthlyGoal = user.monthlyProfitGoal;
   // Gewinn wird bewusst als Einnahmen minus Kosten berechnet.
   const monthlyProfit = recentEntries.reduce((sum, entry) => sum + entry.revenue - entry.costs, 0);
   const hoursWorked = recentEntries.reduce((sum, entry) => sum + entry.hoursWorked, 0);

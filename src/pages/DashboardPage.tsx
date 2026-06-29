@@ -1,17 +1,19 @@
-import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
-import type { UserProfile } from '../models/hustler';
+import type { EarningsVisibility, UserProfile } from '../models/hustler';
 import { getPublicDisplayName } from '../services/authService';
 import { getDashboardSummary } from '../services/dashboardService';
 
 type DashboardPageProps = {
+  onUpdateUser: (user: UserProfile) => void;
   user: UserProfile;
 };
 
 const formatEuro = (value: number): string => `€${Math.round(value).toLocaleString('de-DE')}`;
 
-export function DashboardPage({ user }: DashboardPageProps) {
+export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
   const summary = getDashboardSummary(user);
   const publicDisplayName = getPublicDisplayName(summary.user);
   const location = [summary.user.area, summary.user.city].filter(Boolean).join(', ');
@@ -49,6 +51,8 @@ export function DashboardPage({ user }: DashboardPageProps) {
           <MetricCard label="Ø Stundenlohn" value={`${formatEuro(summary.averageHourlyRate)}/h`} />
         </View>
 
+        <SettingsSection onUpdateUser={onUpdateUser} user={user} />
+
         <View style={styles.hustlesCard}>
           <View style={styles.rowBetween}>
             <Text style={styles.cardTitle}>Meine Hustles</Text>
@@ -65,6 +69,145 @@ export function DashboardPage({ user }: DashboardPageProps) {
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+
+const earningsVisibilityOptions: Array<{ description: string; label: string; value: EarningsVisibility }> = [
+  { description: 'Nur du siehst deine Zahlen.', label: 'Privat', value: 'private' },
+  { description: 'Dein Username darf neben Einnahmen erscheinen.', label: 'Mit Username', value: 'username' },
+  { description: 'Einnahmen können anonym im Leaderboard landen.', label: 'Anonymes Leaderboard', value: 'anonymousLeaderboard' },
+];
+
+function SettingsSection({ onUpdateUser, user }: DashboardPageProps) {
+  const [monthlyProfitGoalInput, setMonthlyProfitGoalInput] = useState(String(user.monthlyProfitGoal));
+
+  useEffect(() => {
+    setMonthlyProfitGoalInput(String(user.monthlyProfitGoal));
+  }, [user.id, user.monthlyProfitGoal]);
+
+  function updateUserSetting(updates: Partial<UserProfile>) {
+    onUpdateUser({ ...user, ...updates });
+  }
+
+  function updateTextSetting(field: 'area' | 'city') {
+    return (value: string) => updateUserSetting({ [field]: value });
+  }
+
+  function updateMonthlyProfitGoal(value: string) {
+    setMonthlyProfitGoalInput(value);
+
+    const parsedMonthlyProfitGoal = Number(value.replace(',', '.'));
+    if (Number.isFinite(parsedMonthlyProfitGoal) && parsedMonthlyProfitGoal > 0) {
+      updateUserSetting({ monthlyProfitGoal: Math.round(parsedMonthlyProfitGoal) });
+    }
+  }
+
+  return (
+    <View style={styles.settingsCard}>
+      <View style={styles.rowBetween}>
+        <View style={styles.sectionTitleGroup}>
+          <Text style={styles.cardTitle}>Einstellungen</Text>
+          <Text style={styles.muted}>Lokale Profileinstellungen für Sichtbarkeit, Standort und Monatsziel.</Text>
+        </View>
+        <Text style={styles.badge}>Lokal</Text>
+      </View>
+
+      <Text style={styles.label}>Sichtbarkeit deiner Einnahmen</Text>
+      <View style={styles.optionStack}>
+        {earningsVisibilityOptions.map((option) => {
+          const isSelected = user.earningsVisibility === option.value;
+
+          return (
+            <Pressable
+              accessibilityRole="radio"
+              accessibilityState={{ selected: isSelected }}
+              key={option.value}
+              onPress={() => updateUserSetting({ earningsVisibility: option.value })}
+              style={[styles.settingOption, isSelected && styles.settingOptionSelected]}
+            >
+              <View style={[styles.radioIndicator, isSelected && styles.radioIndicatorSelected]} />
+              <View style={styles.optionTextGroup}>
+                <Text style={[styles.settingOptionText, isSelected && styles.settingOptionTextSelected]}>
+                  {option.label}
+                </Text>
+                <Text style={styles.settingOptionDescription}>{option.description}</Text>
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <SettingToggle
+        description="Dein ungefährer Bereich darf später auf der Karte erscheinen."
+        label="isMapVisible"
+        onToggle={(isMapVisible) => updateUserSetting({ isMapVisible })}
+        value={user.isMapVisible}
+      />
+      <SettingToggle
+        description="Öffentliche Ansichten nutzen keinen direkt erkennbaren Profilnamen."
+        label="isAnonymousProfile"
+        onToggle={(isAnonymousProfile) => updateUserSetting({ isAnonymousProfile })}
+        value={user.isAnonymousProfile}
+      />
+
+      <Text style={styles.label}>city</Text>
+      <TextInput
+        onChangeText={updateTextSetting('city')}
+        placeholder="Berlin"
+        placeholderTextColor={colors.mutedText}
+        style={styles.input}
+        value={user.city}
+      />
+
+      <Text style={styles.label}>area</Text>
+      <TextInput
+        onChangeText={updateTextSetting('area')}
+        placeholder="z. B. Kreuzberg"
+        placeholderTextColor={colors.mutedText}
+        style={styles.input}
+        value={user.area}
+      />
+
+      <Text style={styles.label}>monthlyProfitGoal</Text>
+      <TextInput
+        keyboardType="numeric"
+        onChangeText={updateMonthlyProfitGoal}
+        placeholder="Monatliches Gewinnziel in €"
+        placeholderTextColor={colors.mutedText}
+        style={styles.input}
+        value={monthlyProfitGoalInput}
+      />
+    </View>
+  );
+}
+
+function SettingToggle({
+  description,
+  label,
+  onToggle,
+  value,
+}: {
+  description: string;
+  label: string;
+  onToggle: (value: boolean) => void;
+  value: boolean;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      onPress={() => onToggle(!value)}
+      style={[styles.settingOption, value && styles.settingOptionSelected]}
+    >
+      <View style={[styles.toggleTrack, value && styles.toggleTrackActive]}>
+        <View style={[styles.toggleThumb, value && styles.toggleThumbActive]} />
+      </View>
+      <View style={styles.optionTextGroup}>
+        <Text style={[styles.settingOptionText, value && styles.settingOptionTextSelected]}>{label}</Text>
+        <Text style={styles.settingOptionDescription}>{description}</Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -119,6 +262,29 @@ const styles = StyleSheet.create({
   header: {
     gap: spacing.sm,
   },
+  input: {
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    color: colors.text,
+    fontSize: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  label: {
+    color: colors.primaryText,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  optionStack: {
+    gap: spacing.sm,
+  },
+  optionTextGroup: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+
   hustlesCard: {
     backgroundColor: colors.card,
     borderColor: colors.border,
@@ -198,6 +364,18 @@ const styles = StyleSheet.create({
     height: 12,
     overflow: 'hidden',
   },
+
+  radioIndicator: {
+    borderColor: colors.border,
+    borderRadius: 7,
+    borderWidth: 2,
+    height: 14,
+    width: 14,
+  },
+  radioIndicatorSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
   progressValue: {
     color: colors.primary,
     fontSize: 18,
@@ -212,10 +390,70 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     flex: 1,
   },
+
+  sectionTitleGroup: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  settingOption: {
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  settingOptionDescription: {
+    color: colors.mutedText,
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  settingOptionSelected: {
+    borderColor: colors.primary,
+  },
+  settingOptionText: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  settingOptionTextSelected: {
+    color: colors.primaryText,
+  },
+  settingsCard: {
+    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    gap: spacing.md,
+    padding: spacing.lg,
+  },
   subtitle: {
     color: colors.mutedText,
     fontSize: 16,
     lineHeight: 24,
+  },
+
+  toggleThumb: {
+    backgroundColor: colors.mutedText,
+    borderRadius: 9,
+    height: 18,
+    width: 18,
+  },
+  toggleThumbActive: {
+    alignSelf: 'flex-end',
+    backgroundColor: colors.background,
+  },
+  toggleTrack: {
+    backgroundColor: colors.border,
+    borderRadius: 12,
+    justifyContent: 'center',
+    padding: 3,
+    width: 44,
+  },
+  toggleTrackActive: {
+    backgroundColor: colors.primary,
   },
   title: {
     color: colors.text,
