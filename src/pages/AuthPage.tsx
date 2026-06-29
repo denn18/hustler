@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Pressable, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
+import { signInWithEmail } from '../services/authService';
+import type { UserProfile } from '../models/hustler';
 
 type AuthPageProps = {
-  onAuthenticate: (user: { email: string; username: string }) => void;
+  onAuthenticate: (user: UserProfile) => void;
 };
 
 export function AuthPage({ onAuthenticate }: AuthPageProps) {
@@ -13,7 +15,7 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
   const [password, setPassword] = useState('');
 
   function handleSubmit() {
-    onAuthenticate({ email: email.trim(), username: username.trim() });
+    onAuthenticate(signInWithEmail(email, password, username));
   }
 
   return (
