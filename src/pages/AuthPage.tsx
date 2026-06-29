@@ -3,11 +3,17 @@ import { Pressable, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, View }
 
 import { colors, radii, spacing } from '../design/theme';
 import { signInWithEmail, type SignInProfileInput } from '../services/authService';
-import type { UserProfile } from '../models/hustler';
+import type { EarningsVisibility, UserProfile } from '../models/hustler';
 
 type AuthPageProps = {
   onAuthenticate: (user: UserProfile) => void;
 };
+
+const earningsVisibilityOptions: Array<{ label: string; value: EarningsVisibility }> = [
+  { label: 'Einnahmen privat', value: 'private' },
+  { label: 'Einnahmen mit Username sichtbar', value: 'username' },
+  { label: 'anonym fürs Leaderboard', value: 'anonymousLeaderboard' },
+];
 
 export function AuthPage({ onAuthenticate }: AuthPageProps) {
   const [email, setEmail] = useState('');
@@ -17,6 +23,7 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
     bio: '',
     city: '',
     offering: '',
+    earningsVisibility: 'private',
     profileImageUri: '',
     username: '',
   });
@@ -25,6 +32,10 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
     return (value: string) => {
       setProfileDraft((currentDraft) => ({ ...currentDraft, [field]: value }));
     };
+  }
+
+  function updateEarningsVisibility(earningsVisibility: EarningsVisibility) {
+    setProfileDraft((currentDraft) => ({ ...currentDraft, earningsVisibility }));
   }
 
   function handleSubmit() {
@@ -101,6 +112,31 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
             style={styles.input}
             value={profileDraft.offering}
           />
+
+          <Text style={styles.label}>Sichtbarkeit deiner Einnahmen</Text>
+          <View style={styles.visibilityOptions}>
+            {earningsVisibilityOptions.map((option) => {
+              const isSelected = profileDraft.earningsVisibility === option.value;
+
+              return (
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelected }}
+                  key={option.value}
+                  onPress={() => updateEarningsVisibility(option.value)}
+                  style={[styles.visibilityOption, isSelected && styles.visibilityOptionSelected]}
+                >
+                  <View style={[styles.radioIndicator, isSelected && styles.radioIndicatorSelected]} />
+                  <Text style={[styles.visibilityOptionText, isSelected && styles.visibilityOptionTextSelected]}>
+                    {option.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Text style={styles.visibilityHint}>
+            Sicherer Standard: Einnahmen bleiben privat, bis du aktiv etwas anderes auswählst.
+          </Text>
 
           <Text style={styles.label}>Profilbild-URI (optional)</Text>
           <TextInput
@@ -198,6 +234,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     flex: 1,
   },
+  radioIndicator: {
+    borderColor: colors.border,
+    borderRadius: 7,
+    borderWidth: 2,
+    height: 14,
+    width: 14,
+  },
+  radioIndicatorSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
   textArea: {
     minHeight: 96,
     textAlignVertical: 'top',
@@ -206,6 +253,38 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     fontSize: 16,
     lineHeight: 24,
+  },
+  visibilityHint: {
+    color: colors.mutedText,
+    fontSize: 13,
+    lineHeight: 19,
+    marginBottom: spacing.sm,
+  },
+  visibilityOption: {
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    padding: spacing.md,
+  },
+  visibilityOptionSelected: {
+    borderColor: colors.primary,
+  },
+  visibilityOptions: {
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  visibilityOptionText: {
+    color: colors.text,
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  visibilityOptionTextSelected: {
+    color: colors.primaryText,
   },
   title: {
     color: colors.text,
