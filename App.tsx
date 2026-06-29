@@ -1,5 +1,15 @@
-import { AppRoutes } from './src/routes/AppRoutes';
+import { useState } from 'react';
+
+import { AppNavigator } from './src/routes/AppNavigator';
 
 export default function App() {
-  return <AppRoutes />;
+  const [user, setUser] = useState<{ email: string; username: string } | null>(null);
+
+  return (
+    <AppNavigator
+      isAuthenticated={user !== null}
+      onAuthenticate={setUser}
+      username={user?.username ?? ''}
+    />
+  );
 }
