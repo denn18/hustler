@@ -29,7 +29,8 @@ export type Hustle = {
 export type HustleEntry = {
   id: string;
   hustleId: string;
-  amount: number;
+  revenue: number;
+  costs: number;
   hoursWorked: number;
   note?: string;
   earnedAt: string;
