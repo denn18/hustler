@@ -1,4 +1,7 @@
 import { AuthPage } from '../pages/AuthPage';
+import { useState } from 'react';
+
+import { CreateHustlePage } from '../pages/CreateHustlePage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { TutorialPage } from '../pages/TutorialPage';
 import type { UserProfile } from '../models/hustler';
@@ -11,6 +14,7 @@ type AppNavigatorProps = {
 };
 
 export function AppNavigator({ isAuthenticated, onAuthenticate, onUpdateUser, user }: AppNavigatorProps) {
+  const [activePage, setActivePage] = useState<'dashboard' | 'createHustle'>('dashboard');
   if (!isAuthenticated) {
     return <AuthPage onAuthenticate={onAuthenticate} />;
   }
@@ -23,5 +27,18 @@ export function AppNavigator({ isAuthenticated, onAuthenticate, onUpdateUser, us
     return <TutorialPage onComplete={onUpdateUser} user={user} />;
   }
 
-  return <DashboardPage onUpdateUser={onUpdateUser} user={user} />;
+  if (activePage === 'createHustle') {
+    return (
+      <CreateHustlePage
+        onCancel={() => setActivePage('dashboard')}
+        onCreated={(updatedUser) => {
+          onUpdateUser(updatedUser);
+          setActivePage('dashboard');
+        }}
+        user={user}
+      />
+    );
+  }
+
+  return <DashboardPage onCreateHustle={() => setActivePage('createHustle')} onUpdateUser={onUpdateUser} user={user} />;
 }
