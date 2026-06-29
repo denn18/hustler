@@ -1,6 +1,6 @@
 import type { DashboardSummary, Hustle, HustleEntry, UserProfile } from '../models/hustler';
 
-const mockHustles = (userId: string): Hustle[] => [
+const fallbackHustles = (userId: string): Hustle[] => [
   {
     id: 'hustle-design-sprints',
     userId,
@@ -12,7 +12,7 @@ const mockHustles = (userId: string): Hustle[] => [
   },
 ];
 
-const mockEntries = (): HustleEntry[] => [
+const fallbackEntries = (): HustleEntry[] => [
   {
     id: 'entry-today-profit',
     hustleId: 'hustle-design-sprints',
@@ -34,8 +34,9 @@ const mockEntries = (): HustleEntry[] => [
 ];
 
 export function getDashboardSummary(user: UserProfile): DashboardSummary {
-  const hustles = mockHustles(user.id);
-  const recentEntries = mockEntries();
+  const hustles = user.hustles ?? fallbackHustles(user.id);
+  const hustleIds = new Set(hustles.map((hustle) => hustle.id));
+  const recentEntries = (user.hustleEntries ?? fallbackEntries()).filter((entry) => hustleIds.has(entry.hustleId));
   const monthlyGoal = user.monthlyProfitGoal;
   // Gewinn wird bewusst als Einnahmen minus Kosten berechnet.
   const monthlyProfit = recentEntries.reduce((sum, entry) => sum + entry.revenue - entry.costs, 0);

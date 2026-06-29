@@ -54,5 +54,8 @@ export function signInWithEmail(email: string, password: string, profile: SignIn
     earningsVisibility: profile.earningsVisibility ?? 'private',
     monthlyProfitGoal: normalizeMonthlyProfitGoal(profile.monthlyProfitGoal),
     createdAt: new Date().toISOString(),
+    hasCompletedTutorial: false,
+    hustles: [],
+    hustleEntries: [],
   };
 }
