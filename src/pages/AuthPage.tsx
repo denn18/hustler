@@ -13,9 +13,13 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [city, setCity] = useState('');
+  const [area, setArea] = useState('');
+  const [offering, setOffering] = useState('');
+  const [bio, setBio] = useState('');
 
   function handleSubmit() {
-    onAuthenticate(signInWithEmail(email, password, username));
+    onAuthenticate(signInWithEmail(email, password, { area, bio, city, offering, username }));
   }
 
   return (
@@ -60,6 +64,43 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
             secureTextEntry
             style={styles.input}
             value={password}
+          />
+
+          <Text style={styles.label}>Stadt</Text>
+          <TextInput
+            onChangeText={setCity}
+            placeholder="Berlin"
+            placeholderTextColor={colors.mutedText}
+            style={styles.input}
+            value={city}
+          />
+
+          <Text style={styles.label}>Kiez / Gebiet</Text>
+          <TextInput
+            onChangeText={setArea}
+            placeholder="Kreuzberg"
+            placeholderTextColor={colors.mutedText}
+            style={styles.input}
+            value={area}
+          />
+
+          <Text style={styles.label}>Angebot</Text>
+          <TextInput
+            onChangeText={setOffering}
+            placeholder="z. B. Design Sprints"
+            placeholderTextColor={colors.mutedText}
+            style={styles.input}
+            value={offering}
+          />
+
+          <Text style={styles.label}>Bio (optional)</Text>
+          <TextInput
+            multiline
+            onChangeText={setBio}
+            placeholder="Kurzbeschreibung deines Hustles"
+            placeholderTextColor={colors.mutedText}
+            style={[styles.input, styles.textArea]}
+            value={bio}
           />
 
           <Pressable style={styles.button} onPress={handleSubmit}>
@@ -137,6 +178,10 @@ const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: colors.background,
     flex: 1,
+  },
+  textArea: {
+    minHeight: 96,
+    textAlignVertical: 'top',
   },
   subtitle: {
     color: colors.mutedText,

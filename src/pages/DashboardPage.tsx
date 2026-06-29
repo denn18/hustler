@@ -2,6 +2,7 @@ import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View 
 
 import { colors, radii, spacing } from '../design/theme';
 import type { UserProfile } from '../models/hustler';
+import { getPublicDisplayName } from '../services/authService';
 import { getDashboardSummary } from '../services/dashboardService';
 
 type DashboardPageProps = {
@@ -12,14 +13,23 @@ const formatEuro = (value: number): string => `€${Math.round(value).toLocaleSt
 
 export function DashboardPage({ user }: DashboardPageProps) {
   const summary = getDashboardSummary(user);
+  const publicDisplayName = getPublicDisplayName(summary.user);
+  const location = [summary.user.area, summary.user.city].filter(Boolean).join(', ');
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text style={styles.kicker}>Dashboard</Text>
-          <Text style={styles.title}>Hi {summary.user.username || 'Hustler'} 👋</Text>
+          <Text style={styles.title}>Hi {publicDisplayName} 👋</Text>
           <Text style={styles.subtitle}>Dein kompakter Überblick für Ziele, Gewinne und Hustles.</Text>
+          {(location || summary.user.offering || summary.user.bio) ? (
+            <View style={styles.profileCard}>
+              {location ? <Text style={styles.profileMeta}>{location}</Text> : null}
+              {summary.user.offering ? <Text style={styles.profileOffering}>{summary.user.offering}</Text> : null}
+              {summary.user.bio ? <Text style={styles.profileBio}>{summary.user.bio}</Text> : null}
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.goalCard}>
@@ -153,6 +163,29 @@ const styles = StyleSheet.create({
     color: colors.mutedText,
     fontSize: 15,
     lineHeight: 22,
+  },
+  profileBio: {
+    color: colors.mutedText,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  profileCard: {
+    backgroundColor: colors.card,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    gap: spacing.xs,
+    padding: spacing.md,
+  },
+  profileMeta: {
+    color: colors.primary,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  profileOffering: {
+    color: colors.text,
+    fontSize: 17,
+    fontWeight: '800',
   },
   progressFill: {
     backgroundColor: colors.primary,
