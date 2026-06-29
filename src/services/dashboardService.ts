@@ -1,9 +1,11 @@
-import type { DashboardSummary, Hustle, HustleEntry, UserProfile } from '../models/hustler';
+import type { DashboardSummary, Hustle, HustleEntry, RecurringCost, UserProfile } from '../models/hustler';
 import { calculateEntryProfit } from './entryService';
+import { calculateRecurringCostsForMonth } from './recurringCostService';
 
 export type DashboardDataSource = {
   entries?: HustleEntry[];
   hustles?: Hustle[];
+  recurringCosts?: RecurringCost[];
 };
 
 const localDashboardStore: DashboardDataSource = {
@@ -27,8 +29,11 @@ export function getDashboardSummary(user: UserProfile, dataSource: DashboardData
   const activeHustleIds = new Set(activeHustles.map((hustle) => hustle.id));
   const recentEntries = (dataSource.entries ?? []).filter(isEntryForHustles(activeHustleIds));
   const monthlyGoal = user.monthlyProfitGoal;
+  const recurringCosts = dataSource.recurringCosts ?? user.recurringCosts ?? [];
+  const monthlyRecurringCosts = calculateRecurringCostsForMonth(recurringCosts, new Date(), activeHustleIds);
   // Gewinn wird abhängig vom Eintragstyp berechnet: Einnahmen minus Kosten oder reine Ausgabe negativ.
-  const monthlyProfit = recentEntries.reduce((sum, entry) => sum + calculateEntryProfit(entry), 0);
+  // Wiederkehrende Kosten werden als monatliche Hustle-Kosten vom Monatsgewinn abgezogen.
+  const monthlyProfit = recentEntries.reduce((sum, entry) => sum + calculateEntryProfit(entry), 0) - monthlyRecurringCosts;
   const hoursWorked = recentEntries.reduce((sum, entry) => sum + entry.hoursWorked, 0);
   const today = new Date().toISOString().slice(0, 10);
   // Gewinn wird abhängig vom Eintragstyp berechnet: Einnahmen minus Kosten oder reine Ausgabe negativ.
@@ -40,6 +45,7 @@ export function getDashboardSummary(user: UserProfile, dataSource: DashboardData
     user,
     monthlyGoal,
     monthlyProfit,
+    monthlyRecurringCosts,
     monthlyProgress: monthlyGoal > 0 ? monthlyProfit / monthlyGoal : 0,
     todayProfit,
     averageHourlyRate: hoursWorked > 0 ? monthlyProfit / hoursWorked : 0,

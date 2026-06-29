@@ -22,6 +22,7 @@ export type UserProfile = {
   tutorialCompletedAt?: string;
   hustles?: Hustle[];
   hustleEntries?: HustleEntry[];
+  recurringCosts?: RecurringCost[];
 };
 
 export type Hustle = {
@@ -48,6 +49,19 @@ export type Hustle = {
 };
 
 export const getHustleDisplayName = (hustle: Pick<Hustle, 'name' | 'title'>): string => hustle.name || hustle.title || 'Unbenannter Hustle';
+
+export type RecurringCostInterval = 'weekly' | 'monthly' | 'yearly';
+
+export type RecurringCost = {
+  id: string;
+  hustleId: string;
+  amount: number;
+  interval: RecurringCostInterval;
+  nextDueDate: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+};
 
 export type PaymentStatus = 'open' | 'paid' | 'overdue';
 export type HustleEntryType = 'income' | 'expense';
@@ -86,6 +100,7 @@ export type DashboardSummary = {
   user: UserProfile;
   monthlyGoal: number;
   monthlyProfit: number;
+  monthlyRecurringCosts: number;
   monthlyProgress: number;
   todayProfit: number;
   averageHourlyRate: number;
