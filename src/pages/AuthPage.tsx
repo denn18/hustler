@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Pressable, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
-import { signInWithEmail } from '../services/authService';
+import { signInWithEmail, type SignInProfileInput } from '../services/authService';
 import type { UserProfile } from '../models/hustler';
 
 type AuthPageProps = {
@@ -11,15 +11,24 @@ type AuthPageProps = {
 
 export function AuthPage({ onAuthenticate }: AuthPageProps) {
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [city, setCity] = useState('');
-  const [area, setArea] = useState('');
-  const [offering, setOffering] = useState('');
-  const [bio, setBio] = useState('');
+  const [profileDraft, setProfileDraft] = useState<SignInProfileInput>({
+    area: '',
+    bio: '',
+    city: '',
+    offering: '',
+    profileImageUri: '',
+    username: '',
+  });
+
+  function updateProfileDraft(field: keyof SignInProfileInput) {
+    return (value: string) => {
+      setProfileDraft((currentDraft) => ({ ...currentDraft, [field]: value }));
+    };
+  }
 
   function handleSubmit() {
-    onAuthenticate(signInWithEmail(email, password, { area, bio, city, offering, username }));
+    onAuthenticate(signInWithEmail(email, password, profileDraft));
   }
 
   return (
@@ -49,11 +58,11 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
           <Text style={styles.label}>Username</Text>
           <TextInput
             autoCapitalize="none"
-            onChangeText={setUsername}
+            onChangeText={updateProfileDraft('username')}
             placeholder="dein-hustle-name"
             placeholderTextColor={colors.mutedText}
             style={styles.input}
-            value={username}
+            value={profileDraft.username}
           />
 
           <Text style={styles.label}>Passwort</Text>
@@ -68,39 +77,49 @@ export function AuthPage({ onAuthenticate }: AuthPageProps) {
 
           <Text style={styles.label}>Stadt</Text>
           <TextInput
-            onChangeText={setCity}
+            onChangeText={updateProfileDraft('city')}
             placeholder="Berlin"
             placeholderTextColor={colors.mutedText}
             style={styles.input}
-            value={city}
+            value={profileDraft.city}
           />
 
-          <Text style={styles.label}>Kiez / Gebiet</Text>
+          <Text style={styles.label}>Stadtteil / ungefährer Bereich</Text>
           <TextInput
-            onChangeText={setArea}
-            placeholder="Kreuzberg"
+            onChangeText={updateProfileDraft('area')}
+            placeholder="z. B. Kreuzberg oder Nähe Hauptbahnhof"
             placeholderTextColor={colors.mutedText}
             style={styles.input}
-            value={area}
+            value={profileDraft.area}
           />
 
-          <Text style={styles.label}>Angebot</Text>
+          <Text style={styles.label}>Was bietest du an?</Text>
           <TextInput
-            onChangeText={setOffering}
+            onChangeText={updateProfileDraft('offering')}
             placeholder="z. B. Design Sprints"
             placeholderTextColor={colors.mutedText}
             style={styles.input}
-            value={offering}
+            value={profileDraft.offering}
+          />
+
+          <Text style={styles.label}>Profilbild-URI (optional)</Text>
+          <TextInput
+            autoCapitalize="none"
+            onChangeText={updateProfileDraft('profileImageUri')}
+            placeholder="https://... oder file://..."
+            placeholderTextColor={colors.mutedText}
+            style={styles.input}
+            value={profileDraft.profileImageUri}
           />
 
           <Text style={styles.label}>Bio (optional)</Text>
           <TextInput
             multiline
-            onChangeText={setBio}
+            onChangeText={updateProfileDraft('bio')}
             placeholder="Kurzbeschreibung deines Hustles"
             placeholderTextColor={colors.mutedText}
             style={[styles.input, styles.textArea]}
-            value={bio}
+            value={profileDraft.bio}
           />
 
           <Pressable style={styles.button} onPress={handleSubmit}>
