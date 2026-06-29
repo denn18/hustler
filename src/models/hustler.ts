@@ -2,7 +2,12 @@ export type UserProfile = {
   id: string;
   email: string;
   username: string;
-  displayName?: string;
+  city: string;
+  area: string;
+  profileImageUri?: string;
+  bio?: string;
+  offering: string;
+  publicDisplayName?: string;
   createdAt: string;
 };
 
