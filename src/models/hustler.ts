@@ -10,6 +10,8 @@ export type UserProfile = {
   bio?: string;
   offering: string;
   publicDisplayName?: string;
+  isMapVisible: boolean;
+  isAnonymousProfile: boolean;
   earningsVisibility: EarningsVisibility;
   createdAt: string;
 };
