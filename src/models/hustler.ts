@@ -1,4 +1,5 @@
 export type EarningsVisibility = 'private' | 'username' | 'anonymousLeaderboard';
+export type HustleVisibility = 'private' | 'publicProfile' | 'publicOffer';
 
 export type TutorialStepId = 'intro' | 'createFirstHustle' | 'addTestEntry' | 'viewDashboard';
 
@@ -26,12 +27,27 @@ export type UserProfile = {
 export type Hustle = {
   id: string;
   userId: string;
-  title: string;
+  name: string;
+  /**
+   * @deprecated Use `name` for the visible hustle name. `title` is kept as a
+   * temporary compatibility alias for older persisted mock data.
+   */
+  title?: string;
+  category: string;
+  icon?: string;
+  color?: string;
   description?: string;
-  targetMonthlyProfit: number;
+  visibility?: HustleVisibility;
+  offerTitle?: string;
+  offerDescription?: string;
+  targetMonthlyProfit?: number;
+  customer?: string;
+  notes?: string;
   isActive: boolean;
   createdAt: string;
 };
+
+export const getHustleDisplayName = (hustle: Pick<Hustle, 'name' | 'title'>): string => hustle.name || hustle.title || 'Unbenannter Hustle';
 
 export type HustleEntry = {
   id: string;
