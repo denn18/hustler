@@ -1,5 +1,7 @@
 export type EarningsVisibility = 'private' | 'username' | 'anonymousLeaderboard';
 
+export type TutorialStepId = 'intro' | 'createFirstHustle' | 'addTestEntry' | 'viewDashboard';
+
 export type UserProfile = {
   id: string;
   email: string;
@@ -15,6 +17,10 @@ export type UserProfile = {
   earningsVisibility: EarningsVisibility;
   monthlyProfitGoal: number;
   createdAt: string;
+  hasCompletedTutorial: boolean;
+  tutorialCompletedAt?: string;
+  hustles?: Hustle[];
+  hustleEntries?: HustleEntry[];
 };
 
 export type Hustle = {
