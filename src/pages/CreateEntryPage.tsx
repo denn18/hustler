@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
-import { getHustleDisplayName, type PaymentStatus, type UserProfile } from '../models/hustler';
+import { getHustleDisplayName, type HustleEntryType, type PaymentStatus, type UserProfile } from '../models/hustler';
 import { calculateEntryHourlyRate, createEntry, type CreateEntryInput } from '../services/entryService';
 
 type CreateEntryPageProps = {
@@ -11,10 +11,10 @@ type CreateEntryPageProps = {
   user: UserProfile;
 };
 
-type EntryForm = Omit<CreateEntryInput, 'costs' | 'hoursWorked' | 'revenue'> & {
-  costs: string;
+type EntryForm = Omit<CreateEntryInput, 'expenseAmount' | 'hoursWorked' | 'incomeAmount'> & {
+  expenseAmount: string;
   hoursWorked: string;
-  revenue: string;
+  incomeAmount: string;
 };
 
 const paymentStatusOptions: Array<{ label: string; value: PaymentStatus }> = [
@@ -23,29 +23,36 @@ const paymentStatusOptions: Array<{ label: string; value: PaymentStatus }> = [
   { label: 'Überfällig', value: 'overdue' },
 ];
 
+const entryTypeOptions: Array<{ label: string; value: HustleEntryType }> = [
+  { label: 'Einnahme erfassen', value: 'income' },
+  { label: 'Ausgabe erfassen', value: 'expense' },
+];
+
 const parseNumber = (value: string): number => Number(value.replace(',', '.'));
 const formatEuro = (value: number): string => `€${value.toLocaleString('de-DE', { maximumFractionDigits: 2 })}`;
 
 export function CreateEntryPage({ onCancel, onCreated, user }: CreateEntryPageProps) {
   const activeHustles = useMemo(() => (user.hustles ?? []).filter((hustle) => hustle.isActive), [user.hustles]);
   const [form, setForm] = useState<EntryForm>({
-    costs: '',
+    expenseAmount: '',
     hoursWorked: '',
     hustleId: activeHustles[0]?.id ?? '',
     paymentStatus: 'paid',
-    revenue: '',
+    incomeAmount: '',
+    type: 'income',
   });
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const previewEntry = {
-    costs: parseNumber(form.costs) || 0,
+    expenseAmount: parseNumber(form.expenseAmount) || 0,
     hoursWorked: parseNumber(form.hoursWorked) || 0,
-    revenue: parseNumber(form.revenue) || 0,
+    incomeAmount: form.type === 'expense' ? 0 : parseNumber(form.incomeAmount) || 0,
+    type: form.type,
   };
-  const profit = previewEntry.revenue - previewEntry.costs;
+  const profit = previewEntry.type === 'expense' ? -previewEntry.expenseAmount : previewEntry.incomeAmount - previewEntry.expenseAmount;
   const hourlyRate = calculateEntryHourlyRate(previewEntry);
-  const canSubmit = form.hustleId.length > 0 && previewEntry.revenue >= 0 && previewEntry.costs >= 0 && previewEntry.hoursWorked > 0;
+  const canSubmit = form.hustleId.length > 0 && previewEntry.incomeAmount >= 0 && previewEntry.expenseAmount >= 0 && previewEntry.hoursWorked > 0 && (form.type === 'income' ? previewEntry.incomeAmount > 0 : previewEntry.expenseAmount > 0);
 
   function updateTextField(field: keyof EntryForm) {
     return (value: string) => {
@@ -56,18 +63,18 @@ export function CreateEntryPage({ onCancel, onCreated, user }: CreateEntryPagePr
 
   function submit() {
     if (!canSubmit) {
-      setError('Bitte wähle einen Hustle aus und fülle Einnahme, Kosten und Zeit korrekt aus.');
+      setError('Bitte wähle einen Hustle aus und fülle Betrag und Zeit korrekt aus.');
       return;
     }
 
     try {
       onCreated(createEntry(user, {
         ...form,
-        costs: parseNumber(form.costs),
+        expenseAmount: parseNumber(form.expenseAmount),
         hoursWorked: parseNumber(form.hoursWorked),
         materialCosts: form.materialCosts,
         platformFees: form.platformFees,
-        revenue: parseNumber(form.revenue),
+        incomeAmount: form.type === 'expense' ? 0 : parseNumber(form.incomeAmount),
         travelCosts: form.travelCosts,
       }));
     } catch (submitError) {
@@ -80,12 +87,15 @@ export function CreateEntryPage({ onCancel, onCreated, user }: CreateEntryPagePr
       <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.kicker}>+ Einnahme</Text>
-          <Text style={styles.title}>Schneller Eintrag für dein Hustle-Ergebnis</Text>
-          <Text style={styles.subtitle}>Wähle Hustle, Einnahme, Kosten und Zeit. Details kannst du optional direkt ergänzen.</Text>
+          <Text style={styles.kicker}>{form.type === 'income' ? '+ Einnahme' : '− Ausgabe'}</Text>
+          <Text style={styles.title}>{form.type === 'income' ? 'Einnahme erfassen' : 'Ausgabe erfassen'}</Text>
+          <Text style={styles.subtitle}>{form.type === 'income' ? 'Wähle Hustle, Einnahme, Kosten und Zeit. Details kannst du optional direkt ergänzen.' : 'Wähle Hustle, Ausgabenbetrag und Zeit. Grund und Kategorie kannst du optional direkt ergänzen.'}</Text>
         </View>
 
         <View style={styles.formCard}>
+          <Text style={styles.label}>Art *</Text>
+          <View style={styles.optionRow}>{entryTypeOptions.map((option) => <Pressable accessibilityRole="radio" accessibilityState={{ selected: form.type === option.value }} key={option.value} onPress={() => setForm((currentForm) => ({ ...currentForm, type: option.value, incomeAmount: option.value === 'expense' ? '' : currentForm.incomeAmount }))} style={[styles.option, form.type === option.value && styles.optionSelected]}><Text style={[styles.optionText, form.type === option.value && styles.optionTextSelected]}>{option.label}</Text></Pressable>)}</View>
+
           <Text style={styles.label}>Hustle *</Text>
           <View style={styles.optionRow}>
             {activeHustles.map((hustle) => {
@@ -105,11 +115,15 @@ export function CreateEntryPage({ onCancel, onCreated, user }: CreateEntryPagePr
             })}
           </View>
 
-          <Text style={styles.label}>Einnahme *</Text>
-          <TextInput keyboardType="numeric" onChangeText={updateTextField('revenue')} placeholder="0,00" placeholderTextColor={colors.mutedText} style={styles.input} value={form.revenue} />
+          {form.type === 'income' ? (
+            <>
+              <Text style={styles.label}>Einnahme *</Text>
+              <TextInput keyboardType="numeric" onChangeText={updateTextField('incomeAmount')} placeholder="0,00" placeholderTextColor={colors.mutedText} style={styles.input} value={form.incomeAmount} />
+            </>
+          ) : null}
 
-          <Text style={styles.label}>Kosten *</Text>
-          <TextInput keyboardType="numeric" onChangeText={updateTextField('costs')} placeholder="0,00" placeholderTextColor={colors.mutedText} style={styles.input} value={form.costs} />
+          <Text style={styles.label}>{form.type === 'income' ? 'Kosten *' : 'Ausgabenbetrag *'}</Text>
+          <TextInput keyboardType="numeric" onChangeText={updateTextField('expenseAmount')} placeholder="0,00" placeholderTextColor={colors.mutedText} style={styles.input} value={form.expenseAmount} />
 
           <Text style={styles.label}>Zeit in Stunden *</Text>
           <TextInput keyboardType="numeric" onChangeText={updateTextField('hoursWorked')} placeholder="z. B. 2,5" placeholderTextColor={colors.mutedText} style={styles.input} value={form.hoursWorked} />
@@ -146,6 +160,8 @@ export function CreateEntryPage({ onCancel, onCreated, user }: CreateEntryPagePr
               <View style={styles.optionRow}>{paymentStatusOptions.map((option) => <Pressable key={option.value} onPress={() => setForm((currentForm) => ({ ...currentForm, paymentStatus: option.value }))} style={[styles.option, form.paymentStatus === option.value && styles.optionSelected]}><Text style={[styles.optionText, form.paymentStatus === option.value && styles.optionTextSelected]}>{option.label}</Text></Pressable>)}</View>
               <Text style={styles.label}>Ausgabekategorie</Text>
               <TextInput onChangeText={updateTextField('expenseCategory')} placeholder="z. B. Material, Fahrt, Tools" placeholderTextColor={colors.mutedText} style={styles.input} value={form.expenseCategory} />
+              <Text style={styles.label}>Grund</Text>
+              <TextInput multiline onChangeText={updateTextField('reason')} placeholder="Warum ist die Ausgabe angefallen?" placeholderTextColor={colors.mutedText} style={[styles.input, styles.textArea]} value={form.reason} />
             </View>
           ) : null}
 

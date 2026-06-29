@@ -1,9 +1,10 @@
-import type { HustleEntry, PaymentStatus, UserProfile } from '../models/hustler';
+import type { HustleEntry, HustleEntryType, PaymentStatus, UserProfile } from '../models/hustler';
 
 export type CreateEntryInput = {
   hustleId: string;
-  revenue: number;
-  costs: number;
+  type: HustleEntryType;
+  incomeAmount: number;
+  expenseAmount: number;
   hoursWorked: number;
   note?: string;
   materialCosts?: number;
@@ -14,6 +15,7 @@ export type CreateEntryInput = {
   time?: string;
   paymentStatus?: PaymentStatus;
   expenseCategory?: string;
+  reason?: string;
 };
 
 const normalizeOptionalText = (value?: string): string | undefined => {
@@ -57,9 +59,21 @@ const buildEarnedAt = (date?: string, time?: string): string => {
   return parsedDate.toISOString();
 };
 
-export const calculateEntryProfit = (entry: Pick<HustleEntry, 'costs' | 'revenue'>): number => entry.revenue - entry.costs;
+export const getEntryIncomeAmount = (entry: Pick<HustleEntry, 'incomeAmount' | 'revenue'>): number => entry.incomeAmount ?? entry.revenue ?? 0;
 
-export const calculateEntryHourlyRate = (entry: Pick<HustleEntry, 'costs' | 'hoursWorked' | 'revenue'>): number => {
+export const getEntryExpenseAmount = (entry: Pick<HustleEntry, 'costs' | 'expenseAmount'>): number => entry.expenseAmount ?? entry.costs ?? 0;
+
+export const calculateEntryProfit = (entry: Pick<HustleEntry, 'costs' | 'expenseAmount' | 'incomeAmount' | 'revenue' | 'type'>): number => {
+  const expenseAmount = getEntryExpenseAmount(entry);
+
+  if (entry.type === 'expense') {
+    return -expenseAmount;
+  }
+
+  return getEntryIncomeAmount(entry) - expenseAmount;
+};
+
+export const calculateEntryHourlyRate = (entry: Pick<HustleEntry, 'costs' | 'expenseAmount' | 'hoursWorked' | 'incomeAmount' | 'revenue' | 'type'>): number => {
   if (entry.hoursWorked <= 0) {
     return 0;
   }
@@ -74,8 +88,8 @@ export function createEntry(user: UserProfile, input: CreateEntryInput): UserPro
     throw new Error('Bitte wähle einen aktiven Hustle aus.');
   }
 
-  const revenue = normalizeRequiredNumber(input.revenue, 'Einnahme');
-  const costs = normalizeRequiredNumber(input.costs, 'Kosten');
+  const incomeAmount = normalizeRequiredNumber(input.incomeAmount, 'Einnahme');
+  const expenseAmount = normalizeRequiredNumber(input.expenseAmount, 'Ausgabe');
   const hoursWorked = normalizeRequiredNumber(input.hoursWorked, 'Zeit');
 
   if (hoursWorked === 0) {
@@ -85,8 +99,11 @@ export function createEntry(user: UserProfile, input: CreateEntryInput): UserPro
   const entry: HustleEntry = {
     id: createEntryId(user.id),
     hustleId: hustle.id,
-    revenue,
-    costs,
+    type: input.type,
+    incomeAmount,
+    expenseAmount,
+    revenue: incomeAmount,
+    costs: expenseAmount,
     hoursWorked,
     note: normalizeOptionalText(input.note),
     materialCosts: normalizeOptionalNumber(input.materialCosts),
@@ -97,6 +114,7 @@ export function createEntry(user: UserProfile, input: CreateEntryInput): UserPro
     time: normalizeOptionalText(input.time),
     paymentStatus: input.paymentStatus ?? 'paid',
     expenseCategory: normalizeOptionalText(input.expenseCategory),
+    reason: normalizeOptionalText(input.reason),
     earnedAt: buildEarnedAt(input.date, input.time),
   };
 

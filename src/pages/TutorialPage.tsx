@@ -49,6 +49,9 @@ const createTutorialHustle = (userId: string): Hustle => ({
 const createTutorialEntry = (hustleId: string): HustleEntry => ({
   id: `tutorial-entry-${hustleId}`,
   hustleId,
+  type: 'income',
+  incomeAmount: 120,
+  expenseAmount: 20,
   revenue: 120,
   costs: 20,
   hoursWorked: 2,

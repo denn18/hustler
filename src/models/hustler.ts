@@ -50,12 +50,24 @@ export type Hustle = {
 export const getHustleDisplayName = (hustle: Pick<Hustle, 'name' | 'title'>): string => hustle.name || hustle.title || 'Unbenannter Hustle';
 
 export type PaymentStatus = 'open' | 'paid' | 'overdue';
+export type HustleEntryType = 'income' | 'expense';
 
 export type HustleEntry = {
   id: string;
   hustleId: string;
-  revenue: number;
-  costs: number;
+  type: HustleEntryType;
+  incomeAmount: number;
+  expenseAmount: number;
+  /**
+   * @deprecated Use `incomeAmount` for newly created entries. Kept as a
+   * compatibility alias for older persisted mock data.
+   */
+  revenue?: number;
+  /**
+   * @deprecated Use `expenseAmount` for newly created entries. Kept as a
+   * compatibility alias for older persisted mock data.
+   */
+  costs?: number;
   hoursWorked: number;
   note?: string;
   materialCosts?: number;
@@ -66,6 +78,7 @@ export type HustleEntry = {
   time?: string;
   paymentStatus?: PaymentStatus;
   expenseCategory?: string;
+  reason?: string;
   earnedAt: string;
 };
 
