@@ -30,48 +30,52 @@ export function AppNavigator({ isAuthenticated, onAuthenticate, onUpdateUser, us
     return <AuthPage onAuthenticate={onAuthenticate} />;
   }
 
-  if (!user.hasCompletedTutorial) {
-    return <TutorialPage onComplete={onUpdateUser} user={user} />;
+  function handleSelectTab(tab: MainTab) {
+    setActivePage('dashboard');
+    setActiveTab(tab);
   }
 
-  if (activePage === 'createEntry') {
-    return (
-      <CreateEntryPage
-        onCancel={() => setActivePage('dashboard')}
-        onCreated={(updatedUser) => {
-          onUpdateUser(updatedUser);
-          setActivePage('dashboard');
-        }}
-        user={user}
-      />
-    );
-  }
-
-  if (activePage === 'createHustle') {
-    return (
-      <CreateHustlePage
-        onCancel={() => setActivePage('dashboard')}
-        onCreated={(updatedUser) => {
-          onUpdateUser(updatedUser);
-          setActivePage('dashboard');
-        }}
-        user={user}
-      />
-    );
+  function handleReturnToDashboard() {
+    setActivePage('dashboard');
+    setActiveTab('dashboard');
   }
 
   return (
-    <MainTabShell activeTab={activeTab} onSelectTab={setActiveTab}>
-      {activeTab === 'dashboard' ? (
-        <DashboardPage
-          onCreateEntry={() => setActivePage('createEntry')}
-          onCreateHustle={() => setActivePage('createHustle')}
+    <MainTabShell activeTab={activeTab} onSelectTab={handleSelectTab}>
+      {activePage === 'createEntry' ? (
+        <CreateEntryPage
+          onCancel={handleReturnToDashboard}
+          onCreated={(updatedUser) => {
+            onUpdateUser(updatedUser);
+            handleReturnToDashboard();
+          }}
           user={user}
         />
       ) : null}
-      {activeTab === 'map' ? <MapPage user={user} /> : null}
-      {activeTab === 'account' ? <AccountPage user={user} /> : null}
-      {activeTab === 'settings' ? <SettingsPage onUpdateUser={onUpdateUser} user={user} /> : null}
+      {activePage === 'createHustle' ? (
+        <CreateHustlePage
+          onCancel={handleReturnToDashboard}
+          onCreated={(updatedUser) => {
+            onUpdateUser(updatedUser);
+            handleReturnToDashboard();
+          }}
+          user={user}
+        />
+      ) : null}
+      {activePage === 'dashboard' && activeTab === 'dashboard' ? (
+        user.hasCompletedTutorial ? (
+          <DashboardPage
+            onCreateEntry={() => setActivePage('createEntry')}
+            onCreateHustle={() => setActivePage('createHustle')}
+            user={user}
+          />
+        ) : (
+          <TutorialPage onComplete={onUpdateUser} user={user} />
+        )
+      ) : null}
+      {activePage === 'dashboard' && activeTab === 'map' ? <MapPage user={user} /> : null}
+      {activePage === 'dashboard' && activeTab === 'account' ? <AccountPage user={user} /> : null}
+      {activePage === 'dashboard' && activeTab === 'settings' ? <SettingsPage onUpdateUser={onUpdateUser} user={user} /> : null}
     </MainTabShell>
   );
 }
@@ -194,6 +198,6 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   scrollView: { flex: 1 },
   subtitle: { color: colors.mutedText, fontSize: 16, lineHeight: 24 },
-  tabContent: { gap: spacing.lg, padding: spacing.lg, paddingBottom: spacing.xl },
+  tabContent: { gap: spacing.lg, padding: spacing.lg, paddingBottom: spacing.xl + spacing.xl },
   title: { color: colors.text, fontSize: 34, fontWeight: '900' },
 });
