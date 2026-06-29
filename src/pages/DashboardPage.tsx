@@ -7,13 +7,14 @@ import { getPublicDisplayName } from '../services/authService';
 import { type DashboardDataSource, getDashboardSummary } from '../services/dashboardService';
 
 type DashboardPageProps = {
+  onCreateHustle: () => void;
   onUpdateUser: (user: UserProfile) => void;
   user: UserProfile;
 };
 
 const formatEuro = (value: number): string => `€${Math.round(value).toLocaleString('de-DE')}`;
 
-export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
+export function DashboardPage({ onCreateHustle, onUpdateUser, user }: DashboardPageProps) {
   const [dashboardData] = useState<DashboardDataSource>({
     entries: user.hustleEntries ?? [],
     hustles: user.hustles ?? [],
@@ -85,7 +86,7 @@ export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
               </Pressable>
             </>
           ) : (
-            <EmptyHustlesState />
+            <EmptyHustlesState onCreateHustle={onCreateHustle} />
           )}
         </View>
       </ScrollView>
@@ -95,12 +96,12 @@ export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
 
 
 
-function EmptyHustlesState() {
+function EmptyHustlesState({ onCreateHustle }: { onCreateHustle: () => void }) {
   return (
     <View style={styles.emptyState}>
       <Text style={styles.emptyStateTitle}>Noch keine Hustles</Text>
       <Text style={styles.muted}>Lege deinen ersten Hustle an und tracke Einnahmen direkt im Dashboard.</Text>
-      <Pressable style={styles.button}>
+      <Pressable onPress={onCreateHustle} style={styles.button}>
         <Text style={styles.buttonText}>Ersten Hustle erstellen</Text>
       </Pressable>
     </View>
@@ -113,7 +114,7 @@ const earningsVisibilityOptions: Array<{ description: string; label: string; val
   { description: 'Einnahmen können anonym im Leaderboard landen.', label: 'Anonymes Leaderboard', value: 'anonymousLeaderboard' },
 ];
 
-function SettingsSection({ onUpdateUser, user }: DashboardPageProps) {
+function SettingsSection({ onUpdateUser, user }: Pick<DashboardPageProps, 'onUpdateUser' | 'user'>) {
   const [monthlyProfitGoalInput, setMonthlyProfitGoalInput] = useState(String(user.monthlyProfitGoal));
 
   useEffect(() => {
