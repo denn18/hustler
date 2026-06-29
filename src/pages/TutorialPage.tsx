@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
-import type { Hustle, HustleEntry, TutorialStepId, UserProfile } from '../models/hustler';
+import { getHustleDisplayName, type Hustle, type HustleEntry, type TutorialStepId, type UserProfile } from '../models/hustler';
 
 const tutorialSteps: Array<{ description: string; id: TutorialStepId; title: string }> = [
   {
@@ -35,8 +35,12 @@ type TutorialPageProps = {
 const createTutorialHustle = (userId: string): Hustle => ({
   id: `tutorial-hustle-${userId}`,
   userId,
-  title: 'Mein erster Hustle',
+  name: 'Mein erster Hustle',
+  category: 'Onboarding',
+  icon: '🚀',
+  color: '#7C3AED',
   description: 'Ein lokaler Beispiel-Hustle aus dem Onboarding.',
+  visibility: 'private',
   targetMonthlyProfit: 1000,
   isActive: true,
   createdAt: new Date().toISOString(),
@@ -143,7 +147,7 @@ export function TutorialPage({ onComplete, user }: TutorialPageProps) {
 
           {currentStep.id === 'createFirstHustle' ? (
             <View style={styles.previewBox}>
-              <Text style={styles.previewTitle}>{createdFirstHustle ? draftHustles[0].title : 'Noch kein Hustle angelegt'}</Text>
+              <Text style={styles.previewTitle}>{createdFirstHustle ? getHustleDisplayName(draftHustles[0]) : 'Noch kein Hustle angelegt'}</Text>
               <Text style={styles.muted}>
                 {createdFirstHustle
                   ? 'Der Beispiel-Hustle wird lokal in deinen App-State übernommen.'

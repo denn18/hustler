@@ -12,8 +12,16 @@ const localDashboardStore: DashboardDataSource = {
 
 const isEntryForHustles = (hustleIds: Set<string>) => (entry: HustleEntry): boolean => hustleIds.has(entry.hustleId);
 
+const normalizeHustle = (hustle: Hustle): Hustle => ({
+  ...hustle,
+  name: hustle.name || hustle.title || 'Unbenannter Hustle',
+  category: hustle.category || 'Allgemein',
+});
+
 export function getDashboardSummary(user: UserProfile, dataSource: DashboardDataSource = localDashboardStore): DashboardSummary {
-  const hustles = (dataSource.hustles ?? []).filter((hustle) => hustle.userId === user.id);
+  const hustles = (dataSource.hustles ?? user.hustles ?? [])
+    .filter((hustle) => hustle.userId === user.id)
+    .map(normalizeHustle);
   const activeHustles = hustles.filter((hustle) => hustle.isActive);
   const activeHustleIds = new Set(activeHustles.map((hustle) => hustle.id));
   const recentEntries = (dataSource.entries ?? []).filter(isEntryForHustles(activeHustleIds));

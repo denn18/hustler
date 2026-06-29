@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { colors, radii, spacing } from '../design/theme';
-import type { EarningsVisibility, UserProfile } from '../models/hustler';
+import { getHustleDisplayName, type EarningsVisibility, type UserProfile } from '../models/hustler';
 import { getPublicDisplayName } from '../services/authService';
 import { type DashboardDataSource, getDashboardSummary } from '../services/dashboardService';
 
@@ -14,7 +14,10 @@ type DashboardPageProps = {
 const formatEuro = (value: number): string => `€${Math.round(value).toLocaleString('de-DE')}`;
 
 export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
-  const [dashboardData] = useState<DashboardDataSource>({ entries: [], hustles: [] });
+  const [dashboardData] = useState<DashboardDataSource>({
+    entries: user.hustleEntries ?? [],
+    hustles: user.hustles ?? [],
+  });
   const summary = getDashboardSummary(user, dashboardData);
   const activeHustles = summary.hustles.filter((hustle) => hustle.isActive);
   const publicDisplayName = getPublicDisplayName(summary.user);
@@ -67,10 +70,13 @@ export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
                 {activeHustles.map((hustle) => (
                   <View key={hustle.id} style={styles.hustleListItem}>
                     <View style={styles.sectionTitleGroup}>
-                      <Text style={styles.hustleTitle}>{hustle.title}</Text>
+                      <Text style={styles.hustleTitle}>{getHustleDisplayName(hustle)}</Text>
                       {hustle.description ? <Text style={styles.muted}>{hustle.description}</Text> : null}
+                      <Text style={styles.muted}>{hustle.category}</Text>
                     </View>
-                    <Text style={styles.hustleGoal}>{formatEuro(hustle.targetMonthlyProfit)}</Text>
+                    {hustle.targetMonthlyProfit ? (
+                      <Text style={styles.hustleGoal}>{formatEuro(hustle.targetMonthlyProfit)}</Text>
+                    ) : null}
                   </View>
                 ))}
               </View>
