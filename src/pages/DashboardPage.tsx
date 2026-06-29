@@ -9,13 +9,12 @@ import { type DashboardDataSource, getDashboardSummary } from '../services/dashb
 type DashboardPageProps = {
   onCreateEntry: () => void;
   onCreateHustle: () => void;
-  onUpdateUser: (user: UserProfile) => void;
   user: UserProfile;
 };
 
 const formatEuro = (value: number): string => `€${Math.round(value).toLocaleString('de-DE')}`;
 
-export function DashboardPage({ onCreateEntry, onCreateHustle, onUpdateUser, user }: DashboardPageProps) {
+export function DashboardPage({ onCreateEntry, onCreateHustle, user }: DashboardPageProps) {
   const dashboardData: DashboardDataSource = {
     entries: user.hustleEntries ?? [],
     hustles: user.hustles ?? [],
@@ -60,7 +59,6 @@ export function DashboardPage({ onCreateEntry, onCreateHustle, onUpdateUser, use
           <MetricCard label="Ø Stundenlohn" value={`${formatEuro(summary.averageHourlyRate)}/h`} />
         </View>
 
-        <SettingsSection onUpdateUser={onUpdateUser} user={user} />
 
         <View style={styles.hustlesCard}>
           <View style={styles.rowBetween}>
@@ -117,7 +115,7 @@ const earningsVisibilityOptions: Array<{ description: string; label: string; val
   { description: 'Einnahmen können anonym im Leaderboard landen.', label: 'Anonymes Leaderboard', value: 'anonymousLeaderboard' },
 ];
 
-function SettingsSection({ onUpdateUser, user }: Pick<DashboardPageProps, 'onUpdateUser' | 'user'>) {
+export function SettingsSection({ onUpdateUser, user }: { onUpdateUser: (user: UserProfile) => void; user: UserProfile }) {
   const [monthlyProfitGoalInput, setMonthlyProfitGoalInput] = useState(String(user.monthlyProfitGoal));
 
   useEffect(() => {
