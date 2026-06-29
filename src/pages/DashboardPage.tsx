@@ -4,7 +4,7 @@ import { Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextI
 import { colors, radii, spacing } from '../design/theme';
 import type { EarningsVisibility, UserProfile } from '../models/hustler';
 import { getPublicDisplayName } from '../services/authService';
-import { getDashboardSummary } from '../services/dashboardService';
+import { type DashboardDataSource, getDashboardSummary } from '../services/dashboardService';
 
 type DashboardPageProps = {
   onUpdateUser: (user: UserProfile) => void;
@@ -14,7 +14,9 @@ type DashboardPageProps = {
 const formatEuro = (value: number): string => `€${Math.round(value).toLocaleString('de-DE')}`;
 
 export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
-  const summary = getDashboardSummary(user);
+  const [dashboardData] = useState<DashboardDataSource>({ entries: [], hustles: [] });
+  const summary = getDashboardSummary(user, dashboardData);
+  const activeHustles = summary.hustles.filter((hustle) => hustle.isActive);
   const publicDisplayName = getPublicDisplayName(summary.user);
   const location = [summary.user.area, summary.user.city].filter(Boolean).join(', ');
   return (
@@ -56,22 +58,48 @@ export function DashboardPage({ onUpdateUser, user }: DashboardPageProps) {
         <View style={styles.hustlesCard}>
           <View style={styles.rowBetween}>
             <Text style={styles.cardTitle}>Meine Hustles</Text>
-            <Text style={styles.badge}>{summary.hasHustles ? 'Aktiv' : 'Neu'}</Text>
+            <Text style={styles.badge}>{summary.hasHustles ? `${activeHustles.length} aktiv` : 'Neu'}</Text>
           </View>
-          <Text style={styles.muted}>
-            {summary.hasHustles
-              ? 'Füge eine neue Einnahme hinzu, um deinen Fortschritt aktuell zu halten.'
-              : 'Lege deinen ersten Hustle an und tracke Einnahmen direkt im Dashboard.'}
-          </Text>
-          <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>{summary.hasHustles ? '+ Einnahme' : 'Ersten Hustle erstellen'}</Text>
-          </Pressable>
+          {summary.hasHustles ? (
+            <>
+              <Text style={styles.muted}>Deine aktiven Hustles und der schnelle Weg zur nächsten Einnahme.</Text>
+              <View style={styles.hustleList}>
+                {activeHustles.map((hustle) => (
+                  <View key={hustle.id} style={styles.hustleListItem}>
+                    <View style={styles.sectionTitleGroup}>
+                      <Text style={styles.hustleTitle}>{hustle.title}</Text>
+                      {hustle.description ? <Text style={styles.muted}>{hustle.description}</Text> : null}
+                    </View>
+                    <Text style={styles.hustleGoal}>{formatEuro(hustle.targetMonthlyProfit)}</Text>
+                  </View>
+                ))}
+              </View>
+              <Pressable style={styles.button}>
+                <Text style={styles.buttonText}>+ Einnahme</Text>
+              </Pressable>
+            </>
+          ) : (
+            <EmptyHustlesState />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+
+
+function EmptyHustlesState() {
+  return (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyStateTitle}>Noch keine Hustles</Text>
+      <Text style={styles.muted}>Lege deinen ersten Hustle an und tracke Einnahmen direkt im Dashboard.</Text>
+      <Pressable style={styles.button}>
+        <Text style={styles.buttonText}>Ersten Hustle erstellen</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 const earningsVisibilityOptions: Array<{ description: string; label: string; value: EarningsVisibility }> = [
   { description: 'Nur du siehst deine Zahlen.', label: 'Privat', value: 'private' },
@@ -259,8 +287,45 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     padding: spacing.lg,
   },
+  emptyState: {
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    gap: spacing.md,
+    padding: spacing.md,
+  },
+  emptyStateTitle: {
+    color: colors.text,
+    fontSize: 20,
+    fontWeight: '900',
+  },
   header: {
     gap: spacing.sm,
+  },
+  hustleGoal: {
+    color: colors.primary,
+    fontSize: 15,
+    fontWeight: '900',
+  },
+  hustleList: {
+    gap: spacing.sm,
+  },
+  hustleListItem: {
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.md,
+    justifyContent: 'space-between',
+    padding: spacing.md,
+  },
+  hustleTitle: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '800',
   },
   input: {
     backgroundColor: colors.background,
