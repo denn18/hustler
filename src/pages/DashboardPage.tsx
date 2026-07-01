@@ -41,24 +41,25 @@ export function DashboardPage({ onCreateEntry, onCreateHustle, user }: Dashboard
           ) : null}
         </View>
 
-        <View style={styles.goalCard}>
-          <View style={styles.rowBetween}>
-            <Text style={styles.cardTitle}>Monatsziel-Fortschritt</Text>
-            <Text style={styles.progressValue}>{Math.round(summary.monthlyProgress * 100)}%</Text>
-          </View>
-          <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${Math.min(summary.monthlyProgress, 1) * 100}%` }]} />
-          </View>
-          <Text style={styles.muted}>{formatEuro(summary.monthlyProfit)} von {formatEuro(summary.monthlyGoal)}</Text>
-        </View>
-
         <View style={styles.metricGrid}>
-          <MetricCard label="Heutiger Gewinn" value={formatEuro(summary.todayProfit)} />
-          <MetricCard label="Monatsgewinn" value={formatEuro(summary.monthlyProfit)} />
-          <MetricCard label="Fixkosten/Monat" value={formatEuro(summary.monthlyRecurringCosts)} />
+          <View style={styles.goalCard}>
+            <View style={styles.rowBetween}>
+              <Text style={styles.metricLabel}>Monatsziel</Text>
+              <Text style={styles.progressValue}>{Math.round(summary.monthlyProgress * 100)}%</Text>
+            </View>
+            <Text style={styles.metricValue}>{formatEuro(summary.monthlyProfit)} / {formatEuro(summary.monthlyGoal)}</Text>
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${Math.min(summary.monthlyProgress, 1) * 100}%` }]} />
+            </View>
+          </View>
+          <MetricCard label="Heute" value={formatEuro(summary.todayProfit)} />
+          <MetricCard label="Dieser Monat" value={formatEuro(summary.monthlyProfit)} />
           <MetricCard label="Ø Stundenlohn" value={`${formatEuro(summary.averageHourlyRate)}/h`} />
         </View>
 
+        <View style={styles.secondaryMetricArea}>
+          <MetricCard label="Fixkosten/Monat" value={formatEuro(summary.monthlyRecurringCosts)} />
+        </View>
 
         <View style={styles.hustlesCard}>
           <View style={styles.rowBetween}>
@@ -289,11 +290,13 @@ const styles = StyleSheet.create({
   },
   goalCard: {
     backgroundColor: colors.card,
-    borderColor: colors.border,
+    borderColor: colors.primary,
     borderRadius: radii.lg,
     borderWidth: 1,
-    gap: spacing.md,
-    padding: spacing.lg,
+    flex: 1,
+    gap: spacing.sm,
+    minWidth: 145,
+    padding: spacing.md,
   },
   emptyState: {
     backgroundColor: colors.background,
@@ -397,6 +400,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 24,
     fontWeight: '900',
+  },
+  secondaryMetricArea: {
+    alignSelf: 'stretch',
+    maxWidth: 320,
   },
   muted: {
     color: colors.mutedText,
